@@ -42,11 +42,13 @@ def BestHits(Sequences):
     bestHits = {}
     return bestHits
 
-data = open('ProjectData.txt', 'r').read().split(">")
-sequences = {}
-for seq in data[1::]:
-    label, DNA = seq.splitlines()
-    sequences[label] = DNA
+
+if __name__ == '__main__':
+    data = open('../data/test-small.txt', 'r').read().split(">")
+    sequences = {}
+    for seq in data[1::]:
+        label, DNA = seq.splitlines()
+        sequences[label] = DNA
     
     
 #formProfile(sequences)
