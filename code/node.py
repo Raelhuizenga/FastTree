@@ -1,10 +1,11 @@
 class Node:
-    def __init__(self, age, profile, top_hits, up_distance, label):
+    def __init__(self, age, profile, top_hits, up_distance, label, children):
         self.label = label
         self.age = age
         self.profile = profile
         self.top_hits = top_hits
         self.up_distance = up_distance
+        self.children = children
     
     def get_label(self):
         return self.label
@@ -20,6 +21,9 @@ class Node:
     
     def get_up_distance(self):
         return self.up_distance
+
+    def get_children(self):
+        return self.children
     
     def set_label(self, label):
         self.label = label
@@ -35,4 +39,12 @@ class Node:
     
     def set_top_hits(self, top_hits):
         self.top_hits = top_hits
+
+    def set_children(self, children):
+        self.children = children
+
+    def __eq__(self, other):
+        if self.label == other.get_label():
+            return True
+        return False
 

@@ -1,16 +1,19 @@
 import numpy as np
 from node import Node
 
-def fast_tree(nodes):
-    sequence_list = list(nodes.values())
+def fast_tree(sequences_dict):
+    sequence_list = list(sequences_dict.values())
     n = len(sequence_list)
-    L = len(sequence_list[0])
+    global sequence_length
+    sequence_length = len(sequence_list[0])
     total_profile = form_profile(sequence_list)
     total_up_distance = 0
-    total_nodes = []
-    for label, seq in nodes.items():
-        total_nodes.append(Node(0, form_profile([seq]), [], 0, label))
+    total_nodes = {}
+    for label, seq in sequences_dict.items():
+        total_nodes[label] = Node(0, form_profile([seq]), [], 0, label, [])
     top_hits(total_nodes, n)
+    return total_nodes
+
 
 
 def form_profile(nodes):  # Should be O(nla), a = 4 (alphabet size)
@@ -52,19 +55,19 @@ def hamming_distance(pattern_1, pattern_2):
     return distance
 
 # preprint paper page 11
-def up_distance(profile_i,profile_j,L):
-    return profile_distance(profile_i, profile_j,L)/2
+def up_distance(profile_i,profile_j):
+    return profile_distance(profile_i, profile_j)/2
     
 
 # preprint paper page 3
-def profile_distance(profile_i, profile_j,L):
+def profile_distance(profile_i, profile_j):
     profile_distance_value = 0
-    for l in range(L):
+    for l in range(sequence_length):
         for a in range(4):
             for b in range(4):
                 if a!=b:
-                    profile_distance += profile_i[a][l]*profile_j[b][l]
-    profile_distance_value = profile_distance_value/L     
+                    profile_distance_value += profile_i[a][l]*profile_j[b][l]
+    profile_distance_value = profile_distance_value/sequence_length
     return profile_distance_value
 
 
@@ -76,26 +79,27 @@ def average_out_distance(node, active_nodes):
     return dist / (len(active_nodes) - 2)
 
 
-def top_hits(seed_nodes, n):
-    top_hits_dict = {}
+def top_hits(total_nodes, n):
+    seed_nodes = list(total_nodes.values())
     m = int(np.sqrt(n))
     while len(seed_nodes) > m:
-        print(f'm = {m}')
-        print(f'seedsequences = {len(seed_nodes)}')
         single_seed_node = seed_nodes[np.random.randint(0, len(seed_nodes))]
+        seed_nodes.remove(single_seed_node)
         close_neighbors = calculate_close_neighbors(single_seed_node, seed_nodes, m)
         # It was unclear from the paper whether the top hits from the seed sequence should be 
         # directly saved and the seed sequence should be removed from seed_nodes
-        top_hits_dict[single_seed_node] = close_neighbors
-        seed_nodes.remove(single_seed_node)
+        total_nodes[single_seed_node.get_label()].set_top_hits(close_neighbors)
+
         top_hits_helper = calculate_close_neighbors(single_seed_node, seed_nodes, 2 * m)
         for neighbor in close_neighbors:
-            top_hits_dict[neighbor] = calculate_close_neighbors(neighbor, top_hits_helper, m)
+            top_hits_helper_neighbor = top_hits_helper.copy()
+            top_hits_helper_neighbor.remove(neighbor)
+            total_nodes[neighbor.get_label()].set_top_hits(calculate_close_neighbors(neighbor, top_hits_helper_neighbor, m))
             seed_nodes.remove(neighbor)
     for remaining_sequence in seed_nodes:
         top_hits_sequences = seed_nodes.copy()
-        top_hits_dict[remaining_sequence] = top_hits_sequences.remove(remaining_sequence)
-    return top_hits_dict
+        top_hits_sequences.remove(remaining_sequence)
+        total_nodes[remaining_sequence.get_label()].set_top_hits(top_hits_sequences)
 
 
 def calculate_close_neighbors(seed, nodes, m):
@@ -107,7 +111,7 @@ def calculate_close_neighbors(seed, nodes, m):
     sorted_distances = distances.copy()
     sorted_distances.sort()
     m_distance = sorted_distances[m - 1]
-    return [nodes[i] for i in range(len(nodes)) if distances[i] > m_distance]
+    return [nodes[i] for i in range(len(nodes)) if distances[i] <= m_distance]
 
 
 def best_hits(nodes):
@@ -121,5 +125,7 @@ if __name__ == '__main__':
     for seq in data[1::]:
         label, DNA = seq.splitlines()
         sequence_dictionary[label] = DNA
-    n = top_hits(list(sequence_dictionary.values()), len(sequence_dictionary))
-    print(n)
+    n = fast_tree(sequence_dictionary)
+    for key, node in n.items():
+        print(node.get_label())
+        print(node.get_top_hits())
