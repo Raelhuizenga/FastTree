@@ -16,6 +16,10 @@ def fast_tree(sequences_dict):
 
 
 def parse_input():
+    """
+    Reads a text file with aligned sequences and puts the sequences in a dictionary.
+    :return: dictionary with as key the label name and as value the sequence
+    """
     data = open('../data/test-small.txt', 'r').read().split(">")
     sequence_dictionary = {}
     for seq in data[1::]:
