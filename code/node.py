@@ -1,5 +1,38 @@
 class Node:
+    """ 
+    A class used to represent a node in the tree
+    :param age: the number of merges of nodes that have occurred to obtain the node
+    :type age: int
+    :param profile: the total profile of the sequences in the node
+    :type profile: list[list[float]]
+    :param top_hits: the top hits of the node
+    :type top_hits: list[Node]
+    :param up_distance: the up distance of the node, defined 0 for leaf nodes
+    :type up_distance: float
+    :param label: the label of the node, defined in the input file for leaf nodes,
+        and assigned by the algorithm for internal nodes
+    :type label: str
+    :param children: the children of the node
+    :type children: list[Node]
+    """
+
     def __init__(self, age, profile, top_hits, up_distance, label, children):
+        """
+        Constructs all the necessary attributes for the node object
+        :param age: the number of merges of nodes that have occurred to obtain the node
+        :type age: int
+        :param profile: the total profile of the sequences in the node
+        :type profile: list[list[float]]]
+        :param top_hits: the top hits of the node
+        :type top_hits: list[Node]
+        :param up_distance: the up distance of the node, defined 0 for leaf nodes
+        :type up_distance: float
+        :param label: the label of the node, defined in the input file for leaf
+            nodes, and assigned by the algorithm for internal nodes
+        :type label: str
+        :param children: the children of the node
+        :type children: list[Node]
+        """        
         self.label = label
         self.age = age
         self.profile = profile

@@ -4,6 +4,12 @@ from neighbor_joining import top_hits
 
 
 def fast_tree(sequences_dict):
+    """
+    Constructs a tree from the sequences in sequences_dict using the FastTree algorithm.
+    :param sequences_dict: dictionary with as key the label name and as value the sequence
+    :type sequences_dict: dict(str, str)
+    :return: evolutionary tree constructed from the sequences in Newick format
+    """
     sequence_list = list(sequences_dict.values())
     n = len(sequence_list)
     total_profile = form_profile(sequence_list)

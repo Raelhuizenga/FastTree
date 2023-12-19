@@ -8,6 +8,14 @@ def best_hits(nodes):
 
 
 def top_hits(total_nodes, n):
+    """
+    Calculates the top hits for each node in total_nodes and updates this in each node.
+    :param total_nodes: dictionary with as key the label name and as value the node
+    :type total_nodes: dict(str, Node)
+    :param n: number of sequences
+    :type n: int
+    :return: None
+    """
     seed_nodes = list(total_nodes.values())
     m = int(np.sqrt(n))
     while len(seed_nodes) > m:
@@ -31,6 +39,17 @@ def top_hits(total_nodes, n):
 
 
 def calculate_close_neighbors(seed, nodes, m):
+    """
+    Calculates the m closest neighbors of seed in nodes.
+    :param seed: the seed node
+    :type seed: Node
+    :param nodes: the nodes to search in
+    :type nodes: list[Node]
+    :param m: the number of neighbors to return
+    :type m: int
+    :return: the m closest neighbors of seed in nodes
+    :rtype: list[Node]
+    """
     if len(nodes) < m:
         m = len(nodes)
     distances = []
