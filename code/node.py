@@ -24,7 +24,7 @@ class Node:
         :param profile: the total profile of the sequences in the node
         :type profile: list[list[float]]]
         :param top_hits: the top hits of the node
-        :type top_hits: list[Node]
+        :type top_hits: dict[Node] = neighbor joining criterion value
         :param up_distance: the up distance of the node, defined 0 for leaf nodes
         :type up_distance: float
         :param label: the label of the node, defined in the input file for leaf
@@ -39,7 +39,7 @@ class Node:
         self.top_hits = top_hits
         self.up_distance = up_distance
         self.children = children
-    
+
     def get_label(self):
         return self.label
     

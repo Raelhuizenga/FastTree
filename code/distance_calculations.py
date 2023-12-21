@@ -11,7 +11,7 @@ def neighbor_joining_criterion(node_i, node_j, nodes):
     :rtype: float
     """
     return profile_distance(node_i.get_profile(), node_j.get_profile()) - node_i.get_up_distance() \
-        - node_j.get_up_distance() + average_out_distance(node_i, nodes) - average_out_distance(node_j, nodes)
+        - node_j.get_up_distance() - average_out_distance(node_i, nodes) - average_out_distance(node_j, nodes)
 
 
 def hamming_distance(pattern_1, pattern_2):
@@ -72,12 +72,12 @@ def average_out_distance(node, active_nodes):
     :param node: the node to calculate the average out distance of
     :type node: Node
     :param active_nodes: the active nodes
-    :type active_nodes: list[Node]
+    :type active_nodes: dict (string, Node)
     :return: the average out distance of node
     :rtype: float
     """
     dist = 0
-    for i in range(len(active_nodes)):
-        dist += profile_distance(node.get_profile(), active_nodes[i].get_profile()) - node.get_up_distance() \
-                - active_nodes[i].get_up_distance()
+    for label, active_node in active_nodes.items():
+        dist += profile_distance(node.get_profile(), active_node.get_profile()) - node.get_up_distance() \
+                - active_node.get_up_distance()
     return dist / (len(active_nodes) - 2)

@@ -1,7 +1,6 @@
 from node import Node
 from profile_creation import form_profile
-from neighbor_joining import top_hits
-
+from neighbor_joining import top_hits, best_hits
 
 def fast_tree(sequences_dict):
     """
@@ -18,7 +17,8 @@ def fast_tree(sequences_dict):
     for label, seq in sequences_dict.items():
         total_nodes[label] = Node(0, form_profile([seq]), [], 0, label, [])
     top_hits(total_nodes, n)
-    return total_nodes
+    best_hits_list = best_hits(total_nodes)
+    return best_hits_list
 
 
 def parse_input():
@@ -37,6 +37,7 @@ def parse_input():
 if __name__ == '__main__':
     sequence_dict = parse_input()
     n = fast_tree(sequence_dict)
-    for key, node in n.items():
-        print(node.get_label())
-        print(node.get_top_hits())
+    print(n)
+    # for key, node in n.items():
+    #     print(node.get_label())
+    #     print(node.get_top_hits())
