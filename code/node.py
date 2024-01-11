@@ -1,22 +1,6 @@
 class Node:
-    """ 
-    A class used to represent a node in the tree
-    :param age: the number of merges of nodes that have occurred to obtain the node
-    :type age: int
-    :param profile: the total profile of the sequences in the node
-    :type profile: list[list[float]]
-    :param top_hits: the top hits of the node
-    :type top_hits: list[Node]
-    :param up_distance: the up distance of the node, defined 0 for leaf nodes
-    :type up_distance: float
-    :param label: the label of the node, defined in the input file for leaf nodes,
-        and assigned by the algorithm for internal nodes
-    :type label: str
-    :param children: the children of the node
-    :type children: list[Node]
-    """
 
-    def __init__(self, age, profile, top_hits, up_distance, label, children):
+    def __init__(self, age, profile, top_hits, up_distance, label, children, active, parent):
         """
         Constructs all the necessary attributes for the node object
         :param age: the number of merges of nodes that have occurred to obtain the node
@@ -32,6 +16,10 @@ class Node:
         :type label: str
         :param children: the children of the node
         :type children: list[Node]
+        :param active: if the node is active
+        :type active: boolean
+        :param parents: the parent of the node
+        :type parents: Node or None
         """        
         self.label = label
         self.age = age
@@ -39,6 +27,8 @@ class Node:
         self.top_hits = top_hits
         self.up_distance = up_distance
         self.children = children
+        self.active = active
+        self.parent = parent
 
     def get_label(self):
         return self.label
@@ -57,6 +47,12 @@ class Node:
 
     def get_children(self):
         return self.children
+
+    def get_active(self):
+        return self.active
+
+    def get_parents(self):
+        return self.parents
     
     def set_label(self, label):
         self.label = label
@@ -75,6 +71,12 @@ class Node:
 
     def set_children(self, children):
         self.children = children
+
+    def set_active(self, active):
+        self.active = active
+
+    def set_parent(self, parent):
+        self.parent = parent
 
     def __eq__(self, other):
         if self.label == other.get_label():

@@ -1,17 +1,20 @@
-def neighbor_joining_criterion(node_i, node_j, nodes):
+from get_active_nodes import get_active_nodes
+
+def neighbor_joining_criterion(node_i, node_j, all_nodes):
     """
     Calculates the neighbor joining criterion for node_i and node_j.
     :param node_i: the first node
     :type node_i: Node
     :param node_j: the second node
     :type node_j: Node
-    :param nodes: all nodes
-    :type nodes: list[Node]
+    :param all_nodes: all nodes
+    :type all_nodes: dict(label, node)
     :return: the neighbor joining criterion for node_i and node_j
     :rtype: float
     """
+    active_nodes = get_active_nodes(all_nodes)
     return profile_distance(node_i.get_profile(), node_j.get_profile()) - node_i.get_up_distance() \
-        - node_j.get_up_distance() - average_out_distance(node_i, nodes) - average_out_distance(node_j, nodes)
+        - node_j.get_up_distance() - average_out_distance(node_i, active_nodes) - average_out_distance(node_j, active_nodes)
 
 
 def hamming_distance(pattern_1, pattern_2):
