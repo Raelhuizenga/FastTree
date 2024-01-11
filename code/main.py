@@ -21,6 +21,8 @@ def fast_tree(sequences_dict):
     best_hits_list = best_hits(total_nodes)
     best_hit = get_best_hit(best_hits_list, total_nodes)
     create_join(best_hit, total_nodes)
+    # while active nodes < n-3:
+    #   join nodes
     return total_nodes
 
 
