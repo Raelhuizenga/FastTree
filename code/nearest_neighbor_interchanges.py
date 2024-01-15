@@ -1,4 +1,5 @@
 from distance_calculations import log_corrected_profile_distance
+from profile_creation import create_combined_profile
 from node import Node
 
 
@@ -13,8 +14,30 @@ def nearest_neighbor_interchange(node_a, node_b, node_c, node_d):
     if dist_1 < dist_2 and dist_1 < dist_3:
         return
     if dist_2 < dist_3:
-        # change topology to dist2 topology
+        change_to_topology_2(node_a, node_b, node_c, node_d)
         return
     else:
         # change topology to dist3 topology
         return
+
+
+def change_to_topology_2(node_a, node_b, node_c, node_d):
+    f_1 = node_a.get_parent()
+    f_2 = node_c.get_parent()
+    f_1.set_children([node_a, node_c])
+    f_2.set_children([node_b, node_d])
+    node_c.set_parent(f_1)
+    node_d.set_parent(f_2)
+    f_1.set_profile(create_combined_profile(node_a, node_c))
+    f_2.set_profile(create_combined_profile(node_b, node_d))
+
+
+def change_to_topology_3(node_a, node_b, node_c, node_d):
+    f_1 = node_a.get_parent()
+    f_2 = node_c.get_parent()
+    f_1.set_children([node_b, node_c])
+    f_2.set_children([node_a, node_d])
+    node_c.set_parent(f_1)
+    node_a.set_parent(f_2)
+    f_1.set_profile(create_combined_profile(node_b, node_c))
+    f_2.set_profile(create_combined_profile(node_a, node_d))
