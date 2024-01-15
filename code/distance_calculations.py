@@ -60,6 +60,8 @@ def profile_distance(profile_i, profile_j):
     :return: the profile distance between profile_i and profile_j
     :rtype: float
     """
+    if len(profile_i) != len(profile_j) or len(profile_i[0]) != len(profile_j[0]):
+        raise ValueError('profiles not of the same size')
     profile_distance_value = 0
     for l in range(len(profile_i[0])):
         for a in range(4):

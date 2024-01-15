@@ -38,6 +38,6 @@ def create_combined_profile(node_1, node_2):
     for i in range(len(profile_1)):
         row = []
         for j in range(len(profile_1[0])):
-            row.append(profile_1[i][j] + profile_2[i][j] / 2)
+            row.append((profile_1[i][j] + profile_2[i][j]) / 2)
         new_profile.append(row)
     return new_profile

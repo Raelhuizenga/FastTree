@@ -44,7 +44,7 @@ def parse_input():
     Reads a text file with aligned sequences and puts the sequences in a dictionary.
     :return: dictionary with as key the label name and as value the sequence
     """
-    data = open('../data/fasttree-input.txt', 'r').read().split(">")
+    data = open('../data/test-small.txt', 'r').read().split(">")
     sequence_dictionary = {}
     for seq in data[1::]:
         label, DNA = seq.splitlines()
