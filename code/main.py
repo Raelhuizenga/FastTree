@@ -2,6 +2,7 @@ from node import Node
 from profile_creation import form_profile
 from neighbor_joining import top_hits, best_hits, get_best_hit, create_join, create_final_joins
 from get_active_nodes import get_active_nodes, give_active_node
+from newick_format import newick_format
 
 
 def fast_tree(sequences_dict):
@@ -29,6 +30,7 @@ def fast_tree(sequences_dict):
     final_nodes = list(get_active_nodes(total_nodes).keys())
     create_final_joins(final_nodes[0], final_nodes[1], total_nodes)
     print(get_active_nodes(total_nodes))
+    print(newick_format(list(get_active_nodes(total_nodes).keys())[0], total_nodes))
     return total_nodes
 
 

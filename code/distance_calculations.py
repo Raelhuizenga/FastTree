@@ -1,4 +1,5 @@
 from get_active_nodes import get_active_nodes
+import math
 
 def neighbor_joining_criterion(node_i, node_j, all_nodes):
     """
@@ -86,5 +87,9 @@ def average_out_distance(node, active_nodes):
     return dist / (len(active_nodes) - 2)
 
 
-def log_corrected_profile_distance(profile_1, profile_2):
-    pass
+def log_corrected_profile_distance(node_1, node_2, all_nodes):
+    profile_1 = all_nodes[node_1].get_profile()
+    profile_2 = all_nodes[node_2].get_profile()
+    d = profile_distance(profile_1, profile_2)
+    return -(3/4) * math.log(1 - (4/3) * d)
+
