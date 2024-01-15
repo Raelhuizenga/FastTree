@@ -84,3 +84,7 @@ def average_out_distance(node, active_nodes):
         dist += profile_distance(node.get_profile(), active_node.get_profile()) - node.get_up_distance() \
                 - active_node.get_up_distance()
     return dist / (len(active_nodes) - 2)
+
+
+def log_corrected_profile_distance(profile_1, profile_2):
+    pass
