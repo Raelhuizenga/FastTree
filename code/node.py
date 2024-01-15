@@ -51,8 +51,8 @@ class Node:
     def get_active(self):
         return self.active
 
-    def get_parents(self):
-        return self.parents
+    def get_parent(self):
+        return self.parent
     
     def set_label(self, label):
         self.label = label

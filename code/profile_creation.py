@@ -34,8 +34,6 @@ def form_profile(sequences):  # Should be O(nla), a = 4 (alphabet size)
 def create_combined_profile(node_1, node_2):
     profile_1 = node_1.get_profile()
     profile_2 = node_2.get_profile()
-    print(len(profile_1), len(profile_1[0]))
-    print(len(profile_2), len(profile_2[0]))
     new_profile = []
     for i in range(len(profile_1)):
         row = []

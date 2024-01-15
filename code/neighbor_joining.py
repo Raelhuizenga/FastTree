@@ -4,6 +4,7 @@ from node import Node
 from profile_creation import create_combined_profile
 from get_active_nodes import get_active_nodes
 
+
 def best_hits(nodes):
     """
     Calculates the best hits list consisting of the best hit of each node.
@@ -13,11 +14,12 @@ def best_hits(nodes):
     :rtype: list with m tuples (startnode_label, endnode_label, distance)
     """
     best_hits_list = []
-    for label, node in nodes.items():
+    active_nodes = get_active_nodes(nodes)
+    for label, node in active_nodes.items():
         best_hit_dist = min(list(node.get_top_hits().values()))
         best_hit_label = [key for key, dist in node.get_top_hits().items() if dist == best_hit_dist][0]
         best_hits_list.append((label, best_hit_label, best_hit_dist))
-    m = int(len(nodes)**0.5)
+    m = int(len(active_nodes)**0.5)
     best_hits_list = sorted(best_hits_list, key=lambda x: x[2])
     return best_hits_list[0:m]
 
@@ -26,7 +28,6 @@ def get_best_hit(best_hit_list, all_nodes):
     """"
     Calculates the best hit
     """
-    print(all_nodes)
     distance, best_join = float('inf'), None
     for item in best_hit_list:
         new_distance = neighbor_joining_criterion(all_nodes[item[0]], all_nodes[item[1]], all_nodes)
@@ -94,6 +95,7 @@ def calculate_close_neighbors(seed, nodes, m, total_nodes):
             close_neighbors[label] = distances[i]
     return close_neighbors
 
+
 def calculate_top_hits_helper(seed, nodes, m, total_nodes):
     """
     Calculates the m closest neighbors of seed in nodes.
@@ -106,39 +108,53 @@ def calculate_top_hits_helper(seed, nodes, m, total_nodes):
     :return: the m closest neighbors of seed in nodes and the neighbor joining criterion value
     :rtype: dict (Node, float)
     """
-    if len(nodes) < m:
-        m = len(nodes)
+    nodes_without_seed = nodes.copy()
+    if seed.get_label() in nodes_without_seed:
+        del nodes_without_seed[seed.get_label()]
+    if len(nodes_without_seed) < m:
+        m = len(nodes_without_seed)
     distances = []
-    for label, distance in nodes.items():
+    for label, distance in nodes_without_seed.items():
         distances.append(neighbor_joining_criterion(seed, total_nodes[label], total_nodes))
     sorted_distances = distances.copy()
     sorted_distances.sort()
     m_distance = sorted_distances[m - 1]
     close_neighbors = {}
-    for i, label in enumerate(list(nodes.keys())):
+    for i, label in enumerate(list(nodes_without_seed.keys())):
         if distances[i] <= m_distance:
-            close_neighbors[label] = nodes[label]
+            close_neighbors[label] = distances[i]
     return close_neighbors
 
+
+def remove_lineage_from_top_hits(node_1, top_hits_list_2):
+    if node_1.get_label() in top_hits_list_2:
+        del top_hits_list_2[node_1.get_label()]
+    if node_1.get_children():
+        remove_lineage_from_top_hits(node_1.get_children()[0], top_hits_list_2)
+        remove_lineage_from_top_hits(node_1.get_children()[1], top_hits_list_2)
+
+
 def merge_top_hits_list(node_1, node_2, m, merged_node, all_nodes):
-    top_hits_list_1 = node_1.get_top_hits()
-    top_hits_list_2 = node_2.get_top_hits()
-    del top_hits_list_2[node_1.get_label()]
-    del top_hits_list_1[node_2.get_label()]
+    top_hits_list_1 = node_1.get_top_hits().copy()
+    top_hits_list_2 = node_2.get_top_hits().copy()
+    remove_lineage_from_top_hits(node_1, top_hits_list_2)
+    remove_lineage_from_top_hits(node_2, top_hits_list_1)
     for key, value in top_hits_list_1.items():
         if key in top_hits_list_2:
             if top_hits_list_2[key] < value:
                 top_hits_list_1[key] = top_hits_list_2[key]
             del top_hits_list_2[key]
     top_hits_list_1.update(top_hits_list_2)
-    if len(top_hits_list_1) > 0.8 * m:
+
+    if len(top_hits_list_1) > 0.8 * m and len(top_hits_list_1) > 1:
         if len(top_hits_list_1) <= m:
             merged_node.set_top_hits(top_hits_list_1)
             return
         distances = list(top_hits_list_1.values())
         distances = sorted(distances)
         m_distance = distances[m-1]
-        for key, value in top_hits_list_1.items():
+        top_hits_list_1_copy = top_hits_list_1.copy()
+        for key, value in top_hits_list_1_copy.items():
             if value > m_distance:
                 del top_hits_list_1[key]
     else:
@@ -173,4 +189,20 @@ def create_join(best_hit, all_nodes):
     node_2.set_active(False)
     node_1.set_parent(joined_node)
     node_2.set_parent(joined_node)
-    update_top_hits(joined_node, all_nodes)
+    m = int(len(get_active_nodes(all_nodes)) ** (1 / 2))
+    merge_top_hits_list(node_1, node_2, m, joined_node, all_nodes)
+
+
+def create_final_joins(node_1_label, node_2_label, all_nodes):
+    node_1 = all_nodes[node_1_label]
+    node_2 = all_nodes[node_2_label]
+    age = max(node_1.get_age(), node_2.get_age()) + 1
+    new_profile = create_combined_profile(node_1, node_2)
+    updistance = up_distance(node_1.get_profile(), node_2.get_profile())
+    new_label = node_1.get_label() + node_2.get_label()
+    joined_node = Node(age, new_profile, {}, updistance, new_label, [node_1, node_2], True, None)
+    all_nodes[new_label] = joined_node
+    node_1.set_active(False)
+    node_2.set_active(False)
+    node_1.set_parent(joined_node)
+    node_2.set_parent(joined_node)
