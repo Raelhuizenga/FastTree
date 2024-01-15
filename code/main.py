@@ -30,7 +30,12 @@ def fast_tree(sequences_dict):
     final_nodes = list(get_active_nodes(total_nodes).keys())
     create_final_joins(final_nodes[0], final_nodes[1], total_nodes)
     print(get_active_nodes(total_nodes))
-    print(newick_format(list(get_active_nodes(total_nodes).keys())[0], total_nodes))
+    # sometimes there are multiple active nodes left :(
+    # so i just print them all but we need to fix this
+    # TODO: why are there multiple active nodes left?
+    for tree in list(get_active_nodes(total_nodes).keys()):
+        print(newick_format(tree, total_nodes))
+    # print(newick_format(list(get_active_nodes(total_nodes).keys())[0], total_nodes))
     return total_nodes
 
 
@@ -39,7 +44,7 @@ def parse_input():
     Reads a text file with aligned sequences and puts the sequences in a dictionary.
     :return: dictionary with as key the label name and as value the sequence
     """
-    data = open('../data/test-small.txt', 'r').read().split(">")
+    data = open('../data/fasttree-input.txt', 'r').read().split(">")
     sequence_dictionary = {}
     for seq in data[1::]:
         label, DNA = seq.splitlines()
