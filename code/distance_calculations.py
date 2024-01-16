@@ -18,23 +18,6 @@ def neighbor_joining_criterion(node_i, node_j, all_nodes):
         - node_j.get_up_distance() - average_out_distance(node_i, active_nodes) - average_out_distance(node_j, active_nodes)
 
 
-def hamming_distance(pattern_1, pattern_2):
-    """
-    Calculates the hamming distance between two patterns.
-    :param pattern_1: the first pattern
-    :type pattern_1: str
-    :param pattern_2: the second pattern
-    :type pattern_2: str
-    :return: the hamming distance between pattern_1 and pattern_2
-    :rtype: int
-    """
-    distance = 0
-    for i in range(len(pattern_1)):
-        if pattern_1[i] != pattern_2[i]:
-            distance += 1
-    return distance
-
-
 # preprint paper page 11
 def up_distance(profile_i, profile_j):
     """
@@ -77,8 +60,8 @@ def average_out_distance(node, active_nodes):
     Calculates the average out distance of node.
     :param node: the node to calculate the average out distance of
     :type node: Node
-    :param active_nodes: the active nodes
-    :type active_nodes: dict (string, Node)
+    :param active_nodes: the active nodes with their labels
+    :type active_nodes: dict (str, Node)
     :return: the average out distance of node
     :rtype: float
     """
@@ -90,8 +73,56 @@ def average_out_distance(node, active_nodes):
 
 
 def log_corrected_profile_distance(node_1, node_2, all_nodes):
+    """
+    Calculates the log corrected profile distance between two nodes.
+    :param node_1: the first node
+    :type node_1: Node
+    :param node_2: the second node
+    :type node_2: Node
+    :param all_nodes: all nodes
+    :type all_nodes: dict(label, node)
+    :return: the log corrected profile distance between node_1 and node_2
+    :rtype: float
+    """
     profile_1 = all_nodes[node_1].get_profile()
     profile_2 = all_nodes[node_2].get_profile()
     d = profile_distance(profile_1, profile_2)
-    return -(3/4) * math.log(1 - (4/3) * d)
+    return round(-(3/4) * math.log(1 - (4/3) * d),3)
+
+def branch_length(node_1, node_2, all_nodes):
+    '''
+    Calculates the branch length between node_1 and node_2.
+    :param node_1: the first node
+    :type node_1: Node
+    :param node_2: the second node
+    :type node_2: Node
+    :param all_nodes: all nodes
+    :type all_nodes: dict(str, Node)
+    :return: the branch length between node_1 and node_2
+    :rtype: float
+    '''
+    if node_1.get_children() and node_2.get_children():
+        A = node_1.get_children()[0].get_label()
+        B = node_1.get_children()[1].get_label()
+        C = node_2.get_children()[0].get_label()
+        D = node_2.get_children()[1].get_label()
+        return round((log_corrected_profile_distance(A,C,all_nodes) + log_corrected_profile_distance(A,D,all_nodes) + \
+                log_corrected_profile_distance(B,C,all_nodes) + log_corrected_profile_distance(B, D, all_nodes))/4 \
+                - (log_corrected_profile_distance(A, B, all_nodes) + log_corrected_profile_distance(C, D, all_nodes))/2, 3)
+    elif node_1.get_children() and not node_2.get_children():
+        A = node_1.get_children()[0].get_label()
+        B = node_1.get_children()[1].get_label()
+        C = node_2.get_label()
+        return round((log_corrected_profile_distance(C, A, all_nodes)+log_corrected_profile_distance(C, B, all_nodes) - \
+                log_corrected_profile_distance(A, B, all_nodes)) / 2, 3)
+    elif not node_1.get_children() and node_2.get_children:
+        A = node_1.get_label()
+        B = node_2.get_children()[0].get_label()
+        C = node_2.get_children()[1].get_label()
+        return round((log_corrected_profile_distance(A, B, all_nodes)+log_corrected_profile_distance(A, C, all_nodes) - \
+                log_corrected_profile_distance(B, C, all_nodes)) / 2, 3)
+    else:
+        A = node_1.get_label()
+        B = node_2.get_label()
+        return log_corrected_profile_distance(A, B, all_nodes)
 

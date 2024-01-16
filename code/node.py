@@ -7,19 +7,19 @@ class Node:
         :type age: int
         :param profile: the total profile of the sequences in the node
         :type profile: list[list[float]]]
-        :param top_hits: the top hits of the node
-        :type top_hits: dict[Node] = neighbor joining criterion value
+        :param top_hits: the labels of top hits of the node with their distance to the node 
+        :type top_hits: dict(str, float)
         :param up_distance: the up distance of the node, defined 0 for leaf nodes
         :type up_distance: float
         :param label: the label of the node, defined in the input file for leaf
-            nodes, and assigned by the algorithm for internal nodes
+            nodes, and the joined labels of the children for internal nodes
         :type label: str
         :param children: the children of the node
         :type children: list[Node]
         :param active: if the node is active
         :type active: boolean
         :param parents: the parent of the node
-        :type parents: Node or None
+        :type parents: Node
         """        
         self.label = label
         self.age = age

@@ -1,6 +1,6 @@
 from node import Node
 from profile_creation import form_profile
-from neighbor_joining import top_hits, best_hits, get_best_hit, create_join, create_final_joins
+from neighbor_joining import top_hits, best_hits, get_best_hit, create_join
 from get_active_nodes import get_active_nodes, give_active_node
 from newick_format import newick_format
 
@@ -14,6 +14,7 @@ def fast_tree(sequences_dict):
     """
     sequence_list = list(sequences_dict.values())
     n = len(sequence_list)
+    # @ToDo do we ever need total_profile and total_up_distance?
     total_profile = form_profile(sequence_list)
     total_up_distance = 0
     total_nodes = {}
@@ -26,17 +27,16 @@ def fast_tree(sequences_dict):
         best_hit_active = (give_active_node(best_hit[0], total_nodes), give_active_node(best_hit[1], total_nodes))
         create_join(best_hit_active, total_nodes)
     final_join = best_hits(total_nodes)[0]
-    create_final_joins(final_join[0], final_join[1], total_nodes)
+    final_join = (give_active_node(final_join[0], total_nodes), give_active_node(final_join[1], total_nodes))
+    create_join(final_join, total_nodes, False)
     final_nodes = list(get_active_nodes(total_nodes).keys())
-    create_final_joins(final_nodes[0], final_nodes[1], total_nodes)
-    print(get_active_nodes(total_nodes))
-    # sometimes there are multiple active nodes left :(
-    # so i just print them all but we need to fix this
-    # TODO: why are there multiple active nodes left?
-    for tree in list(get_active_nodes(total_nodes).keys()):
-        print(newick_format(tree, total_nodes))
-    # print(newick_format(list(get_active_nodes(total_nodes).keys())[0], total_nodes))
-    return total_nodes
+    create_join(final_nodes, total_nodes, False)
+    # @ToDo Nearest Neighbor Interchanges
+    tree = list(get_active_nodes(total_nodes).keys())
+    if len(tree) > 1:
+        raise ValueError('tree not finished')
+    # @ToDo branch lengths are sometimes negative and zero for all leaves
+    return newick_format(tree[0], total_nodes)
 
 
 def parse_input():
@@ -54,7 +54,8 @@ def parse_input():
 
 if __name__ == '__main__':
     sequence_dict = parse_input()
-    n = fast_tree(sequence_dict)
+    tree = fast_tree(sequence_dict)
+    print(tree)
     # for key, node in n.items():
     #     print(node.get_label())
     #     print(node.get_top_hits())

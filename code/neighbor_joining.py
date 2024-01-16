@@ -10,8 +10,8 @@ def best_hits(nodes):
     Calculates the best hits list consisting of the best hit of each node.
     :param nodes: dictionary with as key the label name and as value the node
     :type nodes: dict(str, Node)
-    :return: best_hits_list
-    :rtype: list with m tuples (startnode_label, endnode_label, distance)
+    :return: list with m tuples (startnode_label, endnode_label, distance)
+    :rtype: list[tuple(str, str, float)]
     """
     best_hits_list = []
     active_nodes = get_active_nodes(nodes)
@@ -26,7 +26,13 @@ def best_hits(nodes):
 
 def get_best_hit(best_hit_list, all_nodes):
     """"
-    Calculates the best hit
+    Calculates the best hit from the best hits list by recomputing the neighbor joining criterion.
+    :param best_hit_list: list with m tuples (startnode_label, endnode_label, distance)
+    :type best_hit_list: list[tuple(str, str, float)]
+    :param all_nodes: dictionary with as key the label name and as value the node
+    :type all_nodes: dict(str, Node)
+    :return: the best hit from the best hits list
+    :rtype: tuple(str, str)
     """
     distance, best_join = float('inf'), None
     for item in best_hit_list:
@@ -56,7 +62,8 @@ def top_hits(total_nodes, n):
         # directly saved and the seed sequence should be removed from seed_nodes
         total_nodes[seed_node_value.get_label()].set_top_hits(close_neighbors)
 
-        top_hits_helper = calculate_top_hits_helper(seed_node_value, seed_nodes, 2 * m, total_nodes)
+        top_hits_helper = calculate_close_neighbors(seed_node_value, seed_nodes, 2 * m, total_nodes)
+        #TODO: check if seed should be part of top_hits_helper (now it isnt)
         for neighbor in list(close_neighbors.keys()):
             top_hits_helper_neighbor = top_hits_helper.copy()
             top_hits_helper_neighbor.pop(neighbor)
@@ -75,38 +82,11 @@ def calculate_close_neighbors(seed, nodes, m, total_nodes):
     :param seed: a node
     :type seed: Node
     :param nodes: the nodes to search in
-    :type nodes: dict (string, Node)
+    :type nodes: dict(str, Node)
     :param m: the number of neighbors to return
     :type m: int
-    :return: the m closest neighbors of seed in nodes and the neighbor joining criterion value
-    :rtype: dict (Node, float)
-    """
-    if len(nodes) < m:
-        m = len(nodes)
-    distances = []
-    for label, distance in nodes.items():
-        distances.append(neighbor_joining_criterion(seed, total_nodes[label], total_nodes))
-    sorted_distances = distances.copy()
-    sorted_distances.sort()
-    m_distance = sorted_distances[m - 1]
-    close_neighbors = {}
-    for i, label in enumerate(list(nodes.keys())):
-        if distances[i] <= m_distance:
-            close_neighbors[label] = distances[i]
-    return close_neighbors
-
-
-def calculate_top_hits_helper(seed, nodes, m, total_nodes):
-    """
-    Calculates the m closest neighbors of seed in nodes.
-    :param seed: a node
-    :type seed: Node
-    :param nodes: the nodes to search in
-    :type nodes: dict (string, Node)
-    :param m: the number of neighbors to return
-    :type m: int
-    :return: the m closest neighbors of seed in nodes and the neighbor joining criterion value
-    :rtype: dict (Node, float)
+    :return: the labels of the m closest neighbors of seed in nodes and their distance
+    :rtype: dict(str, float)
     """
     nodes_without_seed = nodes.copy()
     if seed.get_label() in nodes_without_seed:
@@ -127,6 +107,14 @@ def calculate_top_hits_helper(seed, nodes, m, total_nodes):
 
 
 def remove_lineage_from_top_hits(node_1, top_hits_list_2):
+    '''
+    Removes the lineage of node_1 from the top hits list of node_2.
+    :param node_1: the node to remove the lineage of
+    :type node_1: Node
+    :param top_hits_list_2: the top hits list to remove the lineage from
+    :type top_hits_list_2: dict(str, float)
+    :return: None
+    '''
     if node_1.get_label() in top_hits_list_2:
         del top_hits_list_2[node_1.get_label()]
     if node_1.get_children():
@@ -135,6 +123,20 @@ def remove_lineage_from_top_hits(node_1, top_hits_list_2):
 
 
 def merge_top_hits_list(node_1, node_2, m, merged_node, all_nodes):
+    '''
+    Merges the top hits list of node_1 and node_2 into the top hits list of merged_node.
+    :param node_1: the first node to merge
+    :type node_1: Node
+    :param node_2: the second node to merge
+    :type node_2: Node
+    :param m: the number of neighbors to return
+    :type m: int
+    :param merged_node: the node to merge the top hits list into
+    :type merged_node: Node
+    :param all_nodes: all nodes
+    :type all_nodes: dict(str, Node)
+    :return: None
+    '''
     top_hits_list_1 = node_1.get_top_hits().copy()
     top_hits_list_2 = node_2.get_top_hits().copy()
     remove_lineage_from_top_hits(node_1, top_hits_list_2)
@@ -165,18 +167,36 @@ def merge_top_hits_list(node_1, node_2, m, merged_node, all_nodes):
 
 
 def update_top_hits(node_to_update, all_nodes):
+    '''
+    Updates the top hits list of node_to_update.
+    :param node_to_update: the node to update the top hits list of
+    :type node_to_update: Node
+    :param all_nodes: all nodes
+    :type all_nodes: dict(str, Node)
+    :return: None
+    '''
     active_nodes = get_active_nodes(all_nodes)
     m = int(len(active_nodes)**(1/2))
-    new_top_hits = calculate_top_hits_helper(node_to_update, active_nodes, m, all_nodes)
+    new_top_hits = calculate_close_neighbors(node_to_update, active_nodes, m, all_nodes)
     node_to_update.set_top_hits(new_top_hits)
-    top_hits_helper = calculate_top_hits_helper(node_to_update, active_nodes, 2*m, all_nodes)
+    top_hits_helper = calculate_close_neighbors(node_to_update, active_nodes, 2*m, all_nodes)
     # @ToDo merge old top hits list with new top hits list??
     for close_neighbor, distance in new_top_hits.items():
-        top_hits_list = calculate_top_hits_helper(all_nodes[close_neighbor], top_hits_helper, m, all_nodes)
+        top_hits_list = calculate_close_neighbors(all_nodes[close_neighbor], top_hits_helper, m, all_nodes)
         all_nodes[close_neighbor].set_top_hits(top_hits_list)
 
 
-def create_join(best_hit, all_nodes):
+def create_join(best_hit, all_nodes, update_top_hits=True):
+    '''
+    Creates a join between the two nodes in best_hit.
+    :param best_hit: the best hit to join
+    :type best_hit: tuple(str, str)
+    :param all_nodes: all nodes
+    :type all_nodes: dict(str, Node)
+    :param update_top_hits: if the top hits list should be updated
+    :type update_top_hits: boolean
+    :return: None
+    '''
     node_1 = all_nodes[best_hit[0]]
     node_2 = all_nodes[best_hit[1]]
     age = max(node_1.get_age(), node_2.get_age()) + 1
@@ -189,20 +209,9 @@ def create_join(best_hit, all_nodes):
     node_2.set_active(False)
     node_1.set_parent(joined_node)
     node_2.set_parent(joined_node)
-    m = int(len(get_active_nodes(all_nodes)) ** (1 / 2))
-    merge_top_hits_list(node_1, node_2, m, joined_node, all_nodes)
+    if update_top_hits:
+        m = int(len(get_active_nodes(all_nodes)) ** (1 / 2))
+        merge_top_hits_list(node_1, node_2, m, joined_node, all_nodes)
 
 
-def create_final_joins(node_1_label, node_2_label, all_nodes):
-    node_1 = all_nodes[node_1_label]
-    node_2 = all_nodes[node_2_label]
-    age = max(node_1.get_age(), node_2.get_age()) + 1
-    new_profile = create_combined_profile(node_1, node_2)
-    updistance = up_distance(node_1.get_profile(), node_2.get_profile())
-    new_label = node_1.get_label() + node_2.get_label()
-    joined_node = Node(age, new_profile, {}, updistance, new_label, [node_1, node_2], True, None)
-    all_nodes[new_label] = joined_node
-    node_1.set_active(False)
-    node_2.set_active(False)
-    node_1.set_parent(joined_node)
-    node_2.set_parent(joined_node)
+
