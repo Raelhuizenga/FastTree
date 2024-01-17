@@ -87,7 +87,8 @@ def log_corrected_profile_distance(node_1, node_2, all_nodes):
     profile_1 = all_nodes[node_1].get_profile()
     profile_2 = all_nodes[node_2].get_profile()
     d = profile_distance(profile_1, profile_2)
-    return round(-(3/4) * math.log(1 - (4/3) * d),3)
+    return round(-(3/4) * math.log(1 - (4/3) * d) , 3)
+
 
 def branch_length(node_1, node_2, all_nodes):
     '''

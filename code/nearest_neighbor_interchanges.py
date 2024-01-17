@@ -1,10 +1,24 @@
+import math
 from distance_calculations import log_corrected_profile_distance
 from profile_creation import create_combined_profile
 from node import Node
 
 
-def get_nodes_to_possibly_rearrange(neighbor_node_1, neighbor_node_2):
+def run_nearest_neighbor_interchanges(n):
+    max_iter = round(math.log(n)) + 1
+    for i in range(max_iter):
+        continue
     pass
+
+
+def get_nodes_to_possibly_rearrange(neighbor_node_1, neighbor_node_2):
+    node_a = neighbor_node_1.get_children()[0]
+    node_b = neighbor_node_1.get_children()[1]
+    node_c = neighbor_node_2.get_children()[1]
+    if node_c == neighbor_node_1:
+        node_c = neighbor_node_2.get_children()[0]
+    node_d = neighbor_node_2.get_parent()
+    return node_a, node_b, node_c, node_d
 
 
 def nearest_neighbor_interchange(node_a, node_b, node_c, node_d):
@@ -28,7 +42,7 @@ def nearest_neighbor_interchange(node_a, node_b, node_c, node_d):
         change_to_topology_2(node_a, node_b, node_c, node_d)
         return
     else:
-        # change topology to dist3 topology
+        change_to_topology_3(node_a, node_b, node_c, node_d)
         return
 
 
