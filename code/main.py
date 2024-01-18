@@ -41,12 +41,12 @@ def fast_tree(sequences_dict):
     return newick_format(total_nodes[tree[0]], total_nodes[tree[0]])
 
 
-def parse_input():
+def parse_input(filename):
     """
     Reads a text file with aligned sequences and puts the sequences in a dictionary.
     :return: dictionary with as key the label name and as value the sequence
     """
-    data = open('../data/test-small.txt', 'r').read().split(">")
+    data = open('../data/'+filename+'.txt', 'r').read().split(">")
     sequence_dictionary = {}
     for seq in data[1::]:
         label, DNA = seq.splitlines()
@@ -55,7 +55,8 @@ def parse_input():
 
 
 if __name__ == '__main__':
-    sequence_dict = parse_input()
+    filename = 'test-small'
+    sequence_dict = parse_input(filename)
     tree = fast_tree(sequence_dict)
     print(tree)
     # for key, node in n.items():
