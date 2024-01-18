@@ -1,6 +1,6 @@
 from distance_calculations import branch_length
 
-def newick_format(node_label, all_nodes):
+def newick_format(root_node):
     """
     Formats the tree in Newick format.
     :param node_label: the label of the node to start the formatting from
@@ -10,14 +10,13 @@ def newick_format(node_label, all_nodes):
     :return: the tree in Newick format
     :rtype: str
     """
-    node = all_nodes[node_label]
-    if not node.get_children():
-        return node.get_label() + ":" + str(branch_length(node, node.get_parent(), all_nodes))
-    children = node.get_children()
-    output = "(" + newick_format(children[0].get_label(), all_nodes)+ "," + newick_format(children[1].get_label(), all_nodes) + ")"
-    if not node.get_parent():
+    if not root_node.get_children():
+        return root_node.get_label() + ":" + str(1)
+    children = root_node.get_children()
+    output = "(" + newick_format(children[0]) + "," + newick_format(children[1]) + ")"
+    if not root_node.get_parent():
         output += ";"
     else:
-        output += node.get_label() + ":" + str(branch_length(node, node.get_parent(), all_nodes))
+        output += root_node.get_label() + ":" + str(1)
     return output
 
