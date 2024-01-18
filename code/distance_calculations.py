@@ -102,28 +102,52 @@ def branch_length(node_1, node_2, all_nodes):
     :return: the branch length between node_1 and node_2
     :rtype: float
     '''
-    if node_1.get_children() and node_2.get_children():
-        A = node_1.get_children()[0].get_label()
-        B = node_1.get_children()[1].get_label()
-        C = node_2.get_children()[0].get_label()
-        D = node_2.get_children()[1].get_label()
-        return round((log_corrected_profile_distance(A,C,all_nodes) + log_corrected_profile_distance(A,D,all_nodes) + \
-                log_corrected_profile_distance(B,C,all_nodes) + log_corrected_profile_distance(B, D, all_nodes))/4 \
-                - (log_corrected_profile_distance(A, B, all_nodes) + log_corrected_profile_distance(C, D, all_nodes))/2, 3)
-    elif node_1.get_children() and not node_2.get_children():
-        A = node_1.get_children()[0].get_label()
-        B = node_1.get_children()[1].get_label()
-        C = node_2.get_label()
-        return round((log_corrected_profile_distance(C, A, all_nodes)+log_corrected_profile_distance(C, B, all_nodes) - \
-                log_corrected_profile_distance(A, B, all_nodes)) / 2, 3)
-    elif not node_1.get_children() and node_2.get_children:
-        A = node_1.get_label()
-        B = node_2.get_children()[0].get_label()
-        C = node_2.get_children()[1].get_label()
-        return round((log_corrected_profile_distance(A, B, all_nodes)+log_corrected_profile_distance(A, C, all_nodes) - \
-                log_corrected_profile_distance(B, C, all_nodes)) / 2, 3)
-    else:
-        A = node_1.get_label()
-        B = node_2.get_label()
-        return log_corrected_profile_distance(A, B, all_nodes)
+    if (node_1.get_parent() != node_2):
+        raise ValueError('nodes are not each other\'s parent')
+    
+    r = list(get_active_nodes(all_nodes).values())
+    if len(r) > 1:
+        raise ValueError('tree not finished')
+    r = r[0]
+    
+    if node_1.get_children():
+        
+        A = node_1.get_children()[0]
+        B = node_1.get_children()[1]
+        if node_2.get_children()[0] == node_1:
+            C = node_2.get_children()[1]
+        else:
+            C = node_2.get_children()[0]
+        dABr = (log_corrected_profile_distance(A,r,all_nodes) + log_corrected_profile_distance(A,C,all_nodes) + \
+            log_corrected_profile_distance(B,r,all_nodes) + log_corrected_profile_distance(B, C, all_nodes))/4 \
+            - (log_corrected_profile_distance(A, B, all_nodes) + log_corrected_profile_distance(r, C, all_nodes))/2
+
+        if node_2 == r:
+            # directly return the distance to the root
+            return round(dABr,3)
+        else:
+            # subtract the distance between the parent of the node and the root
+            node_1 = node_1.get_parent()
+            node_2 = node_2.get_parent()
+            A = node_1.get_children()[0]
+            B = node_1.get_children()[1]
+            if node_2.get_children()[0] == node_1:
+                C = node_2.get_children()[1]
+            else:
+                C = node_2.get_children()[0]
+            dABCr = (log_corrected_profile_distance(A,r,all_nodes) + log_corrected_profile_distance(A,C,all_nodes) + \
+                log_corrected_profile_distance(B,r,all_nodes) + log_corrected_profile_distance(B, C, all_nodes))/4 \
+                - (log_corrected_profile_distance(A, B, all_nodes) + log_corrected_profile_distance(r, C, all_nodes))/2
+            return round(dABr - dABCr, 3)
+
+
+    elif not node_1.get_children():
+        A = node_1
+        if node_2.get_children()[0] == A:
+            B = node_2.get_children()[1]
+        else:
+            B = node_2.get_children()[0]
+        return round((log_corrected_profile_distance(A, r, all_nodes)+log_corrected_profile_distance(A, B, all_nodes) - \
+                log_corrected_profile_distance(B, r, all_nodes)) / 2, 3)
+    
 
