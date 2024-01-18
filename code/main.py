@@ -15,7 +15,8 @@ def fast_tree(sequences_dict):
     """
     sequence_list = list(sequences_dict.values())
     n = len(sequence_list)
-    # @ToDo do we ever need total_profile and total_up_distance?
+    # Question: Do we ever need total_profile and total_up_distance?
+    # Not with our implementation for average-out distance, only to make it faster
     total_profile = form_profile(sequence_list)
     total_up_distance = 0
     total_nodes = {}
@@ -32,12 +33,11 @@ def fast_tree(sequences_dict):
     create_join(final_join, total_nodes, False)
     final_nodes = list(get_active_nodes(total_nodes).keys())
     create_join(final_nodes, total_nodes, False)
-    # @ToDo Nearest Neighbor Interchanges
     tree = list(get_active_nodes(total_nodes).keys())
     if len(tree) > 1:
         raise ValueError('tree not finished')
-    # @ToDo branch lengths are sometimes negative and zero for all leaves
     run_nearest_neighbor_interchanges(n, total_nodes[tree[0]])
+    # @ToDo branch lengths are sometimes negative
     return newick_format(total_nodes[tree[0]], total_nodes[tree[0]])
 
 
@@ -56,9 +56,7 @@ def parse_input(filename):
 
 if __name__ == '__main__':
     filename = 'test-small'
+    #filename = 'fasttree-input'
     sequence_dict = parse_input(filename)
     tree = fast_tree(sequence_dict)
     print(tree)
-    # for key, node in n.items():
-    #     print(node.get_label())
-    #     print(node.get_top_hits())

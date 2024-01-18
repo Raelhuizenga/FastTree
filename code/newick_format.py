@@ -3,10 +3,10 @@ from distance_calculations import branch_length
 def newick_format(node, root_node):
     """
     Formats the tree in Newick format.
-    :param node_label: the label of the node to start the formatting from
-    :type node_label: str
-    :param all_nodes: all nodes
-    :type all_nodes: dict(str, Node)
+    :param node: the node to start from
+    :type node: Node
+    :param root_node: the root node of the tree
+    :type root_node: Node
     :return: the tree in Newick format
     :rtype: str
     """

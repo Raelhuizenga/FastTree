@@ -20,6 +20,10 @@ class Node:
         :type active: boolean
         :param parents: the parent of the node
         :type parents: Node
+        :param variance_correction: the variance correction of the node
+        :type variance_correction: float
+        :param lambda_val: the lambda value of the node
+        :type lambda_val: float
         """        
         self.label = label
         self.age = age

@@ -38,6 +38,8 @@ def create_combined_profile(node_1, node_2, lambda_val):
     :type node_1: Node
     :param node_2: the second node
     :type node_2: Node
+    :param lambda_val: the lambda value
+    :type lambda_val: float
     :return: the new profile
     :rtype: list[list[float]]
     """

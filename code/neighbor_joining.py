@@ -219,14 +219,45 @@ def create_join(best_hit, all_nodes, update_top_hits=True):
 
 
 def calculate_variance_correction(node_1, node_2, lambda_val):
+    '''	
+    Calculates the variance correction the join between node_1 and node_2.
+    :param node_1: the first node to join
+    :type node_1: Node
+    :param node_2: the second node to join
+    :type node_2: Node
+    :param lambda_val: the weight of node_1 in the join
+    :type lambda_val: float
+    :return: the variance correction of the join between node_1 and node_2
+    :rtype: float
+    '''
     return lambda_val * node_1.get_variance_correction() + (1 - lambda_val)*node_2.get_variance_correction() + lambda_val*(1-lambda_val)*calculate_variance(node_1, node_2)
 
 
 def calculate_variance(node_1, node_2):
+    '''
+    Calculates the variance of the join between node_1 and node_2.
+    :param node_1: the first node to join
+    :type node_1: Node
+    :param node_2: the second node to join
+    :type node_2: Node
+    :return: the variance of the join between node_1 and node_2
+    :rtype: float
+    '''
     return profile_distance(node_1.get_profile(), node_2.get_profile()) - node_1.get_variance_correction() - node_2.get_variance_correction()
 
 
 def calculate_weight_join(node_1, node_2, active_nodes):
+    '''
+    Calculates the weight of node_1 in the join between node_1 and node_2.
+    :param node_1: the first node to join
+    :type node_1: Node
+    :param node_2: the second node to join
+    :type node_2: Node
+    :param active_nodes: the active nodes
+    :type active_nodes: dict(str, Node)
+    :return: the weight of node_1 in the join between node_1 and node_2
+    :rtype: float
+    '''
     n = len(active_nodes)
     # Question: how should we calculate lambda, if we only have two active nodes left?
     # Is it correct that we than return 1/2?

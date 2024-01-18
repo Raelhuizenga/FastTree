@@ -5,6 +5,13 @@ from node import Node
 
 
 def run_nearest_neighbor_interchanges(n, root_node):
+    """
+    Runs the nearest neighbor interchanges algorithm on the tree.
+    :param n: the number of sequences (= number of leaves)
+    :type n: int
+    :param root_node: the root node of the tree
+    :type root_node: Node
+    """
     max_iter = round(math.log(n)) + 1
     for i in range(max_iter):
         post_order_list = post_order_traversal(root_node, [])
@@ -19,6 +26,15 @@ def run_nearest_neighbor_interchanges(n, root_node):
 
 
 def post_order_traversal(node, post_order_list):
+    """
+    Performs a post order traversal of the tree.
+    :param node: the node to start the traversal from
+    :type node: Node
+    :param post_order_list: the list of nodes in post order
+    :type post_order_list: list[(Node, Node)]
+    :return: the complete list of nodes in post order
+    :rtype: list[(Node, Node)]
+    """
     if node.get_children():
         post_order_traversal(node.get_children()[0], post_order_list)
         post_order_traversal(node.get_children()[1], post_order_list)
@@ -30,6 +46,15 @@ def post_order_traversal(node, post_order_list):
 
 
 def get_nodes_to_possibly_rearrange(neighbor_node_1, neighbor_node_2):
+    """
+    Gets the nodes that can be rearranged.
+    :param neighbor_node_1: the first neighbor node
+    :type neighbor_node_1: Node
+    :param neighbor_node_2: the second neighbor node
+    :type neighbor_node_2: Node
+    :return: the nodes that can be rearranged
+    :rtype: (Node, Node, Node, Node)
+    """
     node_a = neighbor_node_1.get_children()[0]
     node_b = neighbor_node_1.get_children()[1]
     node_c = neighbor_node_2.get_children()[1]

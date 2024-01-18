@@ -104,8 +104,8 @@ def branch_length(node_1, node_2, r):
     :type node_1: Node
     :param node_2: the second node
     :type node_2: Node
-    :param all_nodes: all nodes
-    :type all_nodes: dict(str, Node)
+    :param r: the root node
+    :type r: Node
     :return: the branch length between node_1 and node_2
     :rtype: float
     '''
