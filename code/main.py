@@ -38,7 +38,7 @@ def fast_tree(sequences_dict):
         raise ValueError('tree not finished')
     # @ToDo branch lengths are sometimes negative and zero for all leaves
     run_nearest_neighbor_interchanges(n, total_nodes[tree[0]])
-    return newick_format(total_nodes[tree[0]])
+    return newick_format(total_nodes[tree[0]], total_nodes[tree[0]])
 
 
 def parse_input():

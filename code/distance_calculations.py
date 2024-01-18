@@ -90,7 +90,7 @@ def log_corrected_profile_distance(node_1, node_2):
     return round(-(3/4) * math.log(1 - (4/3) * d) , 3)
 
 
-def branch_length(node_1, node_2, all_nodes):
+def branch_length(node_1, node_2, r):
     '''
     Calculates the branch length between node_1 and node_2.
     :param node_1: the first node
@@ -105,11 +105,6 @@ def branch_length(node_1, node_2, all_nodes):
     if (node_1.get_parent() != node_2):
         raise ValueError('nodes are not each other\'s parent')
     
-    r = list(get_active_nodes(all_nodes).values())
-    if len(r) > 1:
-        raise ValueError('tree not finished')
-    r = r[0]
-    
     if node_1.get_children():
         
         A = node_1.get_children()[0]
@@ -118,9 +113,9 @@ def branch_length(node_1, node_2, all_nodes):
             C = node_2.get_children()[1]
         else:
             C = node_2.get_children()[0]
-        dABr = (log_corrected_profile_distance(A,r,all_nodes) + log_corrected_profile_distance(A,C,all_nodes) + \
-            log_corrected_profile_distance(B,r,all_nodes) + log_corrected_profile_distance(B, C, all_nodes))/4 \
-            - (log_corrected_profile_distance(A, B, all_nodes) + log_corrected_profile_distance(r, C, all_nodes))/2
+        dABr = (log_corrected_profile_distance(A,r) + log_corrected_profile_distance(A,C) + \
+            log_corrected_profile_distance(B,r) + log_corrected_profile_distance(B, C))/4 \
+            - (log_corrected_profile_distance(A, B) + log_corrected_profile_distance(r, C))/2
 
         if node_2 == r:
             # directly return the distance to the root
@@ -135,9 +130,9 @@ def branch_length(node_1, node_2, all_nodes):
                 C = node_2.get_children()[1]
             else:
                 C = node_2.get_children()[0]
-            dABCr = (log_corrected_profile_distance(A,r,all_nodes) + log_corrected_profile_distance(A,C,all_nodes) + \
-                log_corrected_profile_distance(B,r,all_nodes) + log_corrected_profile_distance(B, C, all_nodes))/4 \
-                - (log_corrected_profile_distance(A, B, all_nodes) + log_corrected_profile_distance(r, C, all_nodes))/2
+            dABCr = (log_corrected_profile_distance(A,r) + log_corrected_profile_distance(A,C) + \
+                log_corrected_profile_distance(B,r) + log_corrected_profile_distance(B, C))/4 \
+                - (log_corrected_profile_distance(A, B) + log_corrected_profile_distance(r, C))/2
             return round(dABr - dABCr, 3)
 
 
@@ -147,7 +142,7 @@ def branch_length(node_1, node_2, all_nodes):
             B = node_2.get_children()[1]
         else:
             B = node_2.get_children()[0]
-        return round((log_corrected_profile_distance(A, r, all_nodes)+log_corrected_profile_distance(A, B, all_nodes) - \
-                log_corrected_profile_distance(B, r, all_nodes)) / 2, 3)
+        return round((log_corrected_profile_distance(A, r)+log_corrected_profile_distance(A, B) - \
+                log_corrected_profile_distance(B, r)) / 2, 3)
     
 
