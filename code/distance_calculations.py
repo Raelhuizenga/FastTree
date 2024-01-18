@@ -72,7 +72,7 @@ def average_out_distance(node, active_nodes):
     return dist / (len(active_nodes) - 2)
 
 
-def log_corrected_profile_distance(node_1, node_2, all_nodes):
+def log_corrected_profile_distance(node_1, node_2):
     """
     Calculates the log corrected profile distance between two nodes.
     :param node_1: the first node
@@ -84,8 +84,8 @@ def log_corrected_profile_distance(node_1, node_2, all_nodes):
     :return: the log corrected profile distance between node_1 and node_2
     :rtype: float
     """
-    profile_1 = all_nodes[node_1].get_profile()
-    profile_2 = all_nodes[node_2].get_profile()
+    profile_1 = node_1.get_profile()
+    profile_2 = node_2.get_profile()
     d = profile_distance(profile_1, profile_2)
     return round(-(3/4) * math.log(1 - (4/3) * d) , 3)
 

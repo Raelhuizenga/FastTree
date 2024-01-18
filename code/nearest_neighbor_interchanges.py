@@ -2,13 +2,32 @@ import math
 from distance_calculations import log_corrected_profile_distance
 from profile_creation import create_combined_profile
 from node import Node
+from newick_format import newick_format
 
 
-def run_nearest_neighbor_interchanges(n):
+def run_nearest_neighbor_interchanges(n, root_node):
     max_iter = round(math.log(n)) + 1
     for i in range(max_iter):
-        continue
-    pass
+        post_order_list = post_order_traversal(root_node, [])
+        list_is_changed = False
+        for node_f1, node_f2 in post_order_list:
+            node_a, node_b, node_c, node_d = get_nodes_to_possibly_rearrange(node_f1, node_f2)
+            if nearest_neighbor_interchange(node_a, node_b, node_c, node_d):
+                list_is_changed = True
+                break
+        if not list_is_changed:
+            break
+
+
+def post_order_traversal(node, post_order_list):
+    if node.get_children():
+        post_order_traversal(node.get_children()[0], post_order_list)
+        post_order_traversal(node.get_children()[1], post_order_list)
+        possible_f2 = node.get_parent()
+        if possible_f2:
+            if possible_f2.get_parent():
+                post_order_list.append((node, possible_f2))
+    return post_order_list
 
 
 def get_nodes_to_possibly_rearrange(neighbor_node_1, neighbor_node_2):
@@ -33,17 +52,18 @@ def nearest_neighbor_interchange(node_a, node_b, node_c, node_d):
     :param node_d: the fourth node
     :type node_d: Node
     """
-    dist_1 = log_corrected_profile_distance(node_a.get_profile(), node_b.get_profile()) + log_corrected_profile_distance(node_c.get_profile(), node_d.get_profile())
-    dist_2 = log_corrected_profile_distance(node_a.get_profile(), node_c.get_profile()) + log_corrected_profile_distance(node_b.get_profile(), node_d.get_profile())
-    dist_3 = log_corrected_profile_distance(node_b.get_profile(), node_c.get_profile()) + log_corrected_profile_distance(node_a.get_profile(), node_d.get_profile())
+    dist_1 = log_corrected_profile_distance(node_a, node_b) + log_corrected_profile_distance(node_c, node_d)
+    dist_2 = log_corrected_profile_distance(node_a, node_c) + log_corrected_profile_distance(node_b, node_d)
+    dist_3 = log_corrected_profile_distance(node_b, node_c) + log_corrected_profile_distance(node_a, node_d)
     if dist_1 < dist_2 and dist_1 < dist_3:
-        return
+        # do weighted join again
+        return False
     if dist_2 < dist_3:
         change_to_topology_2(node_a, node_b, node_c, node_d)
-        return
+        return True
     else:
         change_to_topology_3(node_a, node_b, node_c, node_d)
-        return
+        return True
 
 
 def change_to_topology_2(node_a, node_b, node_c, node_d):
@@ -61,11 +81,11 @@ def change_to_topology_2(node_a, node_b, node_c, node_d):
     f_1 = node_a.get_parent()
     f_2 = node_c.get_parent()
     f_1.set_children([node_a, node_c])
-    f_2.set_children([node_b, node_d])
+    f_2.set_children([node_b, f_1])
     node_c.set_parent(f_1)
-    node_d.set_parent(f_2)
+    node_b.set_parent(f_2)
     f_1.set_profile(create_combined_profile(node_a, node_c))
-    f_2.set_profile(create_combined_profile(node_b, node_d))
+    f_2.set_profile(create_combined_profile(node_b, f_1))
 
 
 def change_to_topology_3(node_a, node_b, node_c, node_d):
@@ -83,8 +103,8 @@ def change_to_topology_3(node_a, node_b, node_c, node_d):
     f_1 = node_a.get_parent()
     f_2 = node_c.get_parent()
     f_1.set_children([node_b, node_c])
-    f_2.set_children([node_a, node_d])
+    f_2.set_children([node_a, f_1])
     node_c.set_parent(f_1)
     node_a.set_parent(f_2)
     f_1.set_profile(create_combined_profile(node_b, node_c))
-    f_2.set_profile(create_combined_profile(node_a, node_d))
+    f_2.set_profile(create_combined_profile(node_a, f_1))

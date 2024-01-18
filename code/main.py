@@ -3,6 +3,7 @@ from profile_creation import form_profile
 from neighbor_joining import top_hits, best_hits, get_best_hit, create_join
 from get_active_nodes import get_active_nodes, give_active_node
 from newick_format import newick_format
+from nearest_neighbor_interchanges import run_nearest_neighbor_interchanges
 
 
 def fast_tree(sequences_dict):
@@ -36,7 +37,8 @@ def fast_tree(sequences_dict):
     if len(tree) > 1:
         raise ValueError('tree not finished')
     # @ToDo branch lengths are sometimes negative and zero for all leaves
-    return newick_format(tree[0], total_nodes)
+    run_nearest_neighbor_interchanges(n, total_nodes[tree[0]])
+    return newick_format(total_nodes[tree[0]])
 
 
 def parse_input():
