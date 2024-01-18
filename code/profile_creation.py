@@ -31,7 +31,7 @@ def form_profile(sequences):  # Should be O(nla), a = 4 (alphabet size)
     return [A, C, G, T]
 
 
-def create_combined_profile(node_1, node_2):
+def create_combined_profile(node_1, node_2, lambda_val):
     """
     Creates a new profile from the profiles of node_1 and node_2.
     :param node_1: the first node
@@ -47,6 +47,6 @@ def create_combined_profile(node_1, node_2):
     for i in range(len(profile_1)):
         row = []
         for j in range(len(profile_1[0])):
-            row.append((profile_1[i][j] + profile_2[i][j]) / 2)
+            row.append((lambda_val * profile_1[i][j] + (1-lambda_val) * profile_2[i][j]))
         new_profile.append(row)
     return new_profile

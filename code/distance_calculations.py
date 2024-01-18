@@ -19,7 +19,7 @@ def neighbor_joining_criterion(node_i, node_j, all_nodes):
 
 
 # preprint paper page 11
-def up_distance(profile_i, profile_j):
+def up_distance(node_i, node_j, lambda_val, active_nodes):
     """
     Calculates the up distance between two profiles.
     :param profile_i: the first profile
@@ -29,7 +29,9 @@ def up_distance(profile_i, profile_j):
     :return: the up distance between profile_i and profile_j
     :rtype: float
     """
-    return profile_distance(profile_i, profile_j) / 2
+    du_i = profile_distance(node_i.get_profile(), node_j.get_profile()) - node_i.get_up_distance() - node_j.get_up_distance() + average_out_distance(node_i, active_nodes) - average_out_distance(node_j, active_nodes)
+    du_j = profile_distance(node_i.get_profile(), node_j.get_profile()) - node_i.get_up_distance() - node_j.get_up_distance() + average_out_distance(node_j, active_nodes) - average_out_distance(node_i, active_nodes)
+    return lambda_val * (node_i.get_up_distance() + du_i) + (1-lambda_val)*(node_j.get_up_distance() + du_j)
 
 
 # preprint paper page 3
@@ -43,6 +45,8 @@ def profile_distance(profile_i, profile_j):
     :return: the profile distance between profile_i and profile_j
     :rtype: float
     """
+    # Question: Should we incorporate the weights in the profile distance.
+    # It feels like we should not have to, because we already use it calculte the combined profile, but we are not sure.
     if len(profile_i) != len(profile_j) or len(profile_i[0]) != len(profile_j[0]):
         raise ValueError('profiles not of the same size')
     profile_distance_value = 0
@@ -65,6 +69,9 @@ def average_out_distance(node, active_nodes):
     :return: the average out distance of node
     :rtype: float
     """
+    # Question: what should we do for the final join, if the number of active nodes is 2?
+    if len(active_nodes) == 2:
+        return 0
     dist = 0
     for label, active_node in active_nodes.items():
         dist += profile_distance(node.get_profile(), active_node.get_profile()) - node.get_up_distance() \

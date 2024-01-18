@@ -20,7 +20,7 @@ def fast_tree(sequences_dict):
     total_up_distance = 0
     total_nodes = {}
     for label, seq in sequences_dict.items():
-        total_nodes[label] = Node(0, form_profile([seq]), [], 0, label, [], True, None)
+        total_nodes[label] = Node(0, form_profile([seq]), [], 0, label, [], True, None, 0, None)
     top_hits(total_nodes, n)
     for i in range(n-3):
         best_hits_list = best_hits(total_nodes)

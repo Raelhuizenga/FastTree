@@ -1,5 +1,5 @@
 import numpy as np
-from distance_calculations import neighbor_joining_criterion, up_distance
+from distance_calculations import neighbor_joining_criterion, up_distance, profile_distance
 from node import Node
 from profile_creation import create_combined_profile
 from get_active_nodes import get_active_nodes
@@ -200,10 +200,14 @@ def create_join(best_hit, all_nodes, update_top_hits=True):
     node_1 = all_nodes[best_hit[0]]
     node_2 = all_nodes[best_hit[1]]
     age = max(node_1.get_age(), node_2.get_age()) + 1
-    new_profile = create_combined_profile(node_1, node_2)
-    updistance = up_distance(node_1.get_profile(), node_2.get_profile())
+
     new_label = node_1.get_label() + node_2.get_label()
-    joined_node = Node(age, new_profile, {}, updistance, new_label, [node_1, node_2], True, None)
+    active_nodes = get_active_nodes(all_nodes)
+    lambda_val = calculate_weight_join(node_1, node_2, active_nodes)
+    new_profile = create_combined_profile(node_1, node_2, lambda_val)
+    variance_correction = calculate_variance_correction(node_1, node_2, lambda_val)
+    updistance = up_distance(node_1, node_2, lambda_val, active_nodes)
+    joined_node = Node(age, new_profile, {}, updistance, new_label, [node_1, node_2], True, None, variance_correction, lambda_val)
     all_nodes[new_label] = joined_node
     node_1.set_active(False)
     node_2.set_active(False)
@@ -212,6 +216,32 @@ def create_join(best_hit, all_nodes, update_top_hits=True):
     if update_top_hits:
         m = int(len(get_active_nodes(all_nodes)) ** (1 / 2))
         merge_top_hits_list(node_1, node_2, m, joined_node, all_nodes)
+
+
+def calculate_variance_correction(node_1, node_2, lambda_val):
+    return lambda_val * node_1.get_variance_correction() + (1 - lambda_val)*node_2.get_variance_correction() + lambda_val*(1-lambda_val)*calculate_variance(node_1, node_2)
+
+
+def calculate_variance(node_1, node_2):
+    return profile_distance(node_1.get_profile(), node_2.get_profile()) - node_1.get_variance_correction() - node_2.get_variance_correction()
+
+
+def calculate_weight_join(node_1, node_2, active_nodes):
+    n = len(active_nodes)
+    # Question: how should we calculate lambda, if we only have two active nodes left?
+    # Is it correct that we than return 1/2?
+    if (n == 2):
+        return 1/2
+    sum_profile_distance_1 = 0
+    sum_profile_distance_2 = 0
+    for node in list(active_nodes.values()):
+        if node == node_1 or node == node_2:
+            continue
+        sum_profile_distance_1 += profile_distance(node.get_profile(), node_1.get_profile())
+        sum_profile_distance_2 += profile_distance(node.get_profile(), node_2.get_profile())
+    numerator = (n-2)*(node_1.get_variance_correction() - node_2.get_variance_correction()) + sum_profile_distance_2 - sum_profile_distance_1
+    denominator = 2*(n-2)*calculate_variance(node_1, node_2)
+    return 1/2 + numerator/denominator
 
 
 

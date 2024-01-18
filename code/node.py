@@ -1,6 +1,6 @@
 class Node:
 
-    def __init__(self, age, profile, top_hits, up_distance, label, children, active, parent):
+    def __init__(self, age, profile, top_hits, up_distance, label, children, active, parent, variance_correction, lambda_val):
         """
         Constructs all the necessary attributes for the node object
         :param age: the number of merges of nodes that have occurred to obtain the node
@@ -29,6 +29,8 @@ class Node:
         self.children = children
         self.active = active
         self.parent = parent
+        self.variance_correction = variance_correction
+        self.lambda_val = lambda_val
 
     def get_label(self):
         return self.label
@@ -53,6 +55,12 @@ class Node:
 
     def get_parent(self):
         return self.parent
+
+    def get_variance_correction(self):
+        return self.variance_correction
+
+    def get_lambda(self):
+        return self.lambda_val
     
     def set_label(self, label):
         self.label = label
@@ -77,6 +85,12 @@ class Node:
 
     def set_parent(self, parent):
         self.parent = parent
+
+    def set_variance_correction(self, variance_correction):
+        self.variance_correction = variance_correction
+
+    def set_lambda(self, lambda_val):
+        self.lambda_val = lambda_val
 
     def __eq__(self, other):
         if self.label == other.get_label():

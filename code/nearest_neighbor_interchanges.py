@@ -2,7 +2,6 @@ import math
 from distance_calculations import log_corrected_profile_distance
 from profile_creation import create_combined_profile
 from node import Node
-from newick_format import newick_format
 
 
 def run_nearest_neighbor_interchanges(n, root_node):
@@ -56,7 +55,13 @@ def nearest_neighbor_interchange(node_a, node_b, node_c, node_d):
     dist_2 = log_corrected_profile_distance(node_a, node_c) + log_corrected_profile_distance(node_b, node_d)
     dist_3 = log_corrected_profile_distance(node_b, node_c) + log_corrected_profile_distance(node_a, node_d)
     if dist_1 < dist_2 and dist_1 < dist_3:
-        # do weighted join again
+        f_1 = node_a.get_parent()
+        f_2 = node_c.get_parent()
+        # Question: How can the new profiles change?
+        # Should we recompute lambda to do this?
+        # How can we do this if we do not have any active nodes?
+        f_1.set_profile(create_combined_profile(node_a, node_b, f_1.get_lambda()))
+        f_2.set_profile(create_combined_profile(node_c, f_1, f_2.get_lambda()))
         return False
     if dist_2 < dist_3:
         change_to_topology_2(node_a, node_b, node_c, node_d)
@@ -84,8 +89,9 @@ def change_to_topology_2(node_a, node_b, node_c, node_d):
     f_2.set_children([node_b, f_1])
     node_c.set_parent(f_1)
     node_b.set_parent(f_2)
-    f_1.set_profile(create_combined_profile(node_a, node_c))
-    f_2.set_profile(create_combined_profile(node_b, f_1))
+    # Question: what lamda should we use here?
+    f_1.set_profile(create_combined_profile(node_a, node_c, f_1.get_lambda()))
+    f_2.set_profile(create_combined_profile(node_b, f_1, f_2.get_lambda()))
 
 
 def change_to_topology_3(node_a, node_b, node_c, node_d):
@@ -106,5 +112,6 @@ def change_to_topology_3(node_a, node_b, node_c, node_d):
     f_2.set_children([node_a, f_1])
     node_c.set_parent(f_1)
     node_a.set_parent(f_2)
-    f_1.set_profile(create_combined_profile(node_b, node_c))
-    f_2.set_profile(create_combined_profile(node_a, f_1))
+    # Question: what lamda should we use here?
+    f_1.set_profile(create_combined_profile(node_b, node_c, f_1.get_lambda()))
+    f_2.set_profile(create_combined_profile(node_a, f_1, f_2.get_lambda()))
