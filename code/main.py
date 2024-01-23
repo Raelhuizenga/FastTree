@@ -15,8 +15,8 @@ def fast_tree(sequences_dict):
     """
     sequence_list = list(sequences_dict.values())
     n = len(sequence_list)
-    # Question: Do we ever need total_profile and total_up_distance?
-    # Not with our implementation for average-out distance, only to make it faster
+    # Remark: We do not need total_profile and total_up_distance in our current implementation
+    # Only needed to make average-out distance faster
     total_profile = form_profile(sequence_list)
     total_up_distance = 0
     total_nodes = {}
@@ -43,7 +43,7 @@ def fast_tree(sequences_dict):
 
 def parse_input(filename):
     """
-    Reads a text file with aligned sequences and puts the sequences in a dictionary.
+    Reads a aln file with aligned sequences and puts the sequences in a dictionary.
     :return: dictionary with as key the label name and as value the sequence
     """
     data = open('../data/'+filename+'.aln', 'r').read().split(">")
