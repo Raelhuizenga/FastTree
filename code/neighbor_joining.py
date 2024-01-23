@@ -52,6 +52,11 @@ def top_hits(total_nodes, n):
     :type n: int
     :return: None
     """
+    # Question: In supplement 1, page 8 there are 'restrictions on the top-hits heuristics'.
+    # We currently do not implement this. It states We should have a look at the updistance from node A to
+    # close neighbor node B before we use node A to calculate the tophits list of node B.
+    # We do not understand what we should do if the updistance does not meet the requirements in the supplement.
+    # Is it a problem if we do not implement this?
     seed_nodes = total_nodes.copy()
     m = int(np.sqrt(n))
     while len(seed_nodes) > m:
@@ -143,8 +148,7 @@ def merge_top_hits_list(node_1, node_2, m, merged_node, all_nodes):
                 top_hits_list_1[key] = top_hits_list_2[key]
             del top_hits_list_2[key]
     top_hits_list_1.update(top_hits_list_2)
-
-    if len(top_hits_list_1) > 0.8 * m and len(top_hits_list_1) > 1:
+    if len(top_hits_list_1) > 0.8 * m and len(top_hits_list_1) > 1 and merged_node.get_age() <= 1 + np.log2(m):
         if len(top_hits_list_1) <= m:
             merged_node.set_top_hits(top_hits_list_1)
             return
@@ -176,7 +180,6 @@ def update_top_hits(node_to_update, all_nodes):
     new_top_hits = calculate_close_neighbors(node_to_update, active_nodes, m, all_nodes)
     node_to_update.set_top_hits(new_top_hits)
     top_hits_helper = calculate_close_neighbors(node_to_update, active_nodes, 2*m, all_nodes)
-    # @ToDo merge old top hits list with new top hits list??
     for close_neighbor, distance in new_top_hits.items():
         top_hits_list = calculate_close_neighbors(all_nodes[close_neighbor], top_hits_helper, m, all_nodes)
         update_top_hits_combined_list(close_neighbor, all_nodes[close_neighbor].get_top_hits(), top_hits_list, all_nodes)
@@ -184,8 +187,6 @@ def update_top_hits(node_to_update, all_nodes):
 
 
 def update_top_hits_combined_list(seed, old_top_hits, new_top_hits, all_nodes):
-    # Question: why do we merge the two lists? Because we have already calculated that the new best tophits.
-    # It feels weird to add old tophits which have outdated distances.
     for label in list(old_top_hits.keys()):
         node_to_add = label
         if not all_nodes[label].get_active():
