@@ -2,7 +2,7 @@ import numpy as np
 from distance_calculations import neighbor_joining_criterion, up_distance, profile_distance
 from node import Node
 from profile_creation import create_combined_profile
-from get_active_nodes import get_active_nodes
+from get_active_nodes import get_active_nodes, give_active_node
 
 
 def best_hits(nodes):
@@ -58,12 +58,8 @@ def top_hits(total_nodes, n):
         single_seed_node = list(seed_nodes.keys())[np.random.randint(0, len(seed_nodes))]
         seed_node_value = seed_nodes.pop(single_seed_node)
         close_neighbors = calculate_close_neighbors(seed_node_value, seed_nodes, m, total_nodes)
-        # It was unclear from the paper whether the top hits from the seed sequence should be
-        # directly saved and the seed sequence should be removed from seed_nodes
         total_nodes[seed_node_value.get_label()].set_top_hits(close_neighbors)
-
         top_hits_helper = calculate_close_neighbors(seed_node_value, seed_nodes, 2 * m, total_nodes)
-        #TODO: check if seed should be part of top_hits_helper (now it isnt)
         for neighbor in list(close_neighbors.keys()):
             top_hits_helper_neighbor = top_hits_helper.copy()
             top_hits_helper_neighbor.pop(neighbor)
@@ -183,7 +179,23 @@ def update_top_hits(node_to_update, all_nodes):
     # @ToDo merge old top hits list with new top hits list??
     for close_neighbor, distance in new_top_hits.items():
         top_hits_list = calculate_close_neighbors(all_nodes[close_neighbor], top_hits_helper, m, all_nodes)
+        update_top_hits_combined_list(close_neighbor, all_nodes[close_neighbor].get_top_hits(), top_hits_list, all_nodes)
         all_nodes[close_neighbor].set_top_hits(top_hits_list)
+
+
+def update_top_hits_combined_list(seed, old_top_hits, new_top_hits, all_nodes):
+    # Question: why do we merge the two lists? Because we have already calculated that the new best tophits.
+    # It feels weird to add old tophits which have outdated distances.
+    for label in list(old_top_hits.keys()):
+        node_to_add = label
+        if not all_nodes[label].get_active():
+            node_to_add = give_active_node(node_to_add, all_nodes)
+        if node_to_add not in list(new_top_hits.keys()):
+            dis = neighbor_joining_criterion(all_nodes[seed], all_nodes[node_to_add], all_nodes)
+            if dis < max(list(new_top_hits.values())):
+                key_to_replace = max(new_top_hits, key=new_top_hits.get)
+                del new_top_hits[key_to_replace]
+                new_top_hits[node_to_add] = dis
 
 
 def create_join(best_hit, all_nodes, update_top_hits=True):

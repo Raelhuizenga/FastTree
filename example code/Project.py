@@ -120,7 +120,7 @@ def best_hits(nodes):
 
 
 if __name__ == '__main__':
-    data = open('../data/test-small.txt', 'r').read().split(">")
+    data = open('../data/test-small.aln', 'r').read().split(">")
     sequence_dictionary = {}
     for seq in data[1::]:
         label, DNA = seq.splitlines()

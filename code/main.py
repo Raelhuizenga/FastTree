@@ -46,7 +46,7 @@ def parse_input(filename):
     Reads a text file with aligned sequences and puts the sequences in a dictionary.
     :return: dictionary with as key the label name and as value the sequence
     """
-    data = open('../data/'+filename+'.txt', 'r').read().split(">")
+    data = open('../data/'+filename+'.aln', 'r').read().split(">")
     sequence_dictionary = {}
     for seq in data[1::]:
         label, DNA = seq.splitlines()
