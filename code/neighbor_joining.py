@@ -187,6 +187,18 @@ def update_top_hits(node_to_update, all_nodes):
 
 
 def update_top_hits_combined_list(seed, old_top_hits, new_top_hits, all_nodes):
+    '''
+    Updates the top hits list of seed with the new_top_hits list.
+    :param seed: the label of the seed node
+    :type seed: str
+    :param old_top_hits: the old top hits list of seed
+    :type old_top_hits: dict(str, float)
+    :param new_top_hits: the new top hits list of seed
+    :type new_top_hits: dict(str, float)
+    :param all_nodes: all nodes
+    :type all_nodes: dict(str, Node)
+    :return: None
+    '''
     for label in list(old_top_hits.keys()):
         node_to_add = label
         if not all_nodes[label].get_active():
