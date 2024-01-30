@@ -13,21 +13,21 @@ def fast_tree(sequences_dict):
     :type sequences_dict: dict(str, str)
     :return: evolutionary tree constructed from the sequences in Newick format
     """
+    # Create initial topology
     sequence_list = list(sequences_dict.values())
     n = len(sequence_list)
-    # Remark: We do not need total_profile and total_up_distance in our current implementation
-    # Only needed to make average-out distance faster
-    total_profile = form_profile(sequence_list)
-    total_up_distance = 0
     total_nodes = {}
     for label, seq in sequences_dict.items():
+        # Initialize dictionary with all nodes
         total_nodes[label] = Node(0, form_profile([seq]), [], 0, label, [], True, None, 0, None)
     top_hits(total_nodes, n)
+    # join n - 3 nodes
     for i in range(n-3):
         best_hits_list = best_hits(total_nodes)
         best_hit = get_best_hit(best_hits_list, total_nodes)
         best_hit_active = (give_active_node(best_hit[0], total_nodes), give_active_node(best_hit[1], total_nodes))
         create_join(best_hit_active, total_nodes)
+    # Create the finals joins
     final_join = best_hits(total_nodes)[0]
     final_join = (give_active_node(final_join[0], total_nodes), give_active_node(final_join[1], total_nodes))
     create_join(final_join, total_nodes, False)
@@ -36,6 +36,7 @@ def fast_tree(sequences_dict):
     tree = list(get_active_nodes(total_nodes).keys())
     if len(tree) > 1:
         raise ValueError('tree not finished')
+    # Interchange nearest neighbors
     run_nearest_neighbor_interchanges(n, total_nodes[tree[0]])
     # @ToDo branch lengths are sometimes negative
     return newick_format(total_nodes[tree[0]], total_nodes[tree[0]])
@@ -43,7 +44,7 @@ def fast_tree(sequences_dict):
 
 def parse_input(filename):
     """
-    Reads a aln file with aligned sequences and puts the sequences in a dictionary.
+    Reads an aln file with aligned sequences and puts the sequences in a dictionary.
     :return: dictionary with as key the label name and as value the sequence
     """
     data = open('../data/'+filename+'.aln', 'r').read().split(">")
@@ -55,8 +56,13 @@ def parse_input(filename):
 
 
 if __name__ == '__main__':
-    filename = 'test-small'
-    #filename = 'fasttree-input'
-    sequence_dict = parse_input(filename)
-    tree = fast_tree(sequence_dict)
-    print(tree)
+    input_option = input("For which file do you want to run fast tree? \n 1 : test small 2: fasttree input")
+    if input_option == '1':
+        file = 'test-small'
+    elif input_option == '2':
+        file = 'fasttree-input'
+    else:
+        raise ValueError("Please enter a valid input (1 or 2)")
+    sequence_dict = parse_input(file)
+    output_tree = fast_tree(sequence_dict)
+    print(output_tree)

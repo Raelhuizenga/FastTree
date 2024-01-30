@@ -23,6 +23,8 @@ def give_active_node(node_label, all_nodes):
     :return: the closest active node
     :rtype: Node
     """
+    if node_label not in all_nodes:
+        raise ValueError("label not found in node list")
     node = all_nodes[node_label]
     while not node.get_active():
         node = node.get_parent()

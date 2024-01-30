@@ -1,6 +1,7 @@
 from get_active_nodes import get_active_nodes
 import math
 
+
 def neighbor_joining_criterion(node_i, node_j, all_nodes):
     """
     Calculates the neighbor joining criterion for node_i and node_j.
@@ -15,23 +16,32 @@ def neighbor_joining_criterion(node_i, node_j, all_nodes):
     """
     active_nodes = get_active_nodes(all_nodes)
     return profile_distance(node_i.get_profile(), node_j.get_profile()) - node_i.get_up_distance() \
-        - node_j.get_up_distance() - average_out_distance(node_i, active_nodes) - average_out_distance(node_j, active_nodes)
+        - node_j.get_up_distance() - average_out_distance(node_i, active_nodes) - average_out_distance(node_j,
+                                                                                                       active_nodes)
 
 
 # preprint paper page 11
 def up_distance(node_i, node_j, lambda_val, active_nodes):
     """
     Calculates the up distance between two profiles.
-    :param profile_i: the first profile
-    :type profile_i: list[list[float]]
-    :param profile_j: the second profile
-    :type profile_j: list[list[float]]
-    :return: the up distance between profile_i and profile_j
+    :param node_i: the first nde
+    :type node_i: Node
+    :param node_j: the first nde
+    :type node_j: Node
+    :param lambda_val: the weight of the join
+    :type lambda_val: float
+    :param active_nodes: the active nodes with their labels
+    :type active_nodes: dict (str, Node)
+    :return: the up distance between node_i and node_J
     :rtype: float
     """
-    du_i = profile_distance(node_i.get_profile(), node_j.get_profile()) - node_i.get_up_distance() - node_j.get_up_distance() + average_out_distance(node_i, active_nodes) - average_out_distance(node_j, active_nodes)
-    du_j = profile_distance(node_i.get_profile(), node_j.get_profile()) - node_i.get_up_distance() - node_j.get_up_distance() + average_out_distance(node_j, active_nodes) - average_out_distance(node_i, active_nodes)
-    return lambda_val * (node_i.get_up_distance() + du_i) + (1-lambda_val)*(node_j.get_up_distance() + du_j)
+    du_i = profile_distance(node_i.get_profile(),
+                            node_j.get_profile()) - node_i.get_up_distance() - node_j.get_up_distance() + average_out_distance(
+        node_i, active_nodes) - average_out_distance(node_j, active_nodes)
+    du_j = profile_distance(node_i.get_profile(),
+                            node_j.get_profile()) - node_i.get_up_distance() - node_j.get_up_distance() + average_out_distance(
+        node_j, active_nodes) - average_out_distance(node_i, active_nodes)
+    return lambda_val * (node_i.get_up_distance() + du_i) + (1 - lambda_val) * (node_j.get_up_distance() + du_j)
 
 
 # preprint paper page 3
@@ -45,8 +55,6 @@ def profile_distance(profile_i, profile_j):
     :return: the profile distance between profile_i and profile_j
     :rtype: float
     """
-    # Question: Should we incorporate the weights in the profile distance.
-    # It feels like we should not have to, because we already use it calculte the combined profile, but we are not sure.
     if len(profile_i) != len(profile_j) or len(profile_i[0]) != len(profile_j[0]):
         raise ValueError('profiles not of the same size')
     profile_distance_value = 0
@@ -69,7 +77,8 @@ def average_out_distance(node, active_nodes):
     :return: the average out distance of node
     :rtype: float
     """
-    # Question: what should we do for the final join, if the number of active nodes is 2?
+    # At the final join there are only two active nodes left.
+    # In this case we choose to set the average out distance to 0.
     if len(active_nodes) == 2:
         return 0
     dist = 0
@@ -94,7 +103,9 @@ def log_corrected_profile_distance(node_1, node_2):
     profile_1 = node_1.get_profile()
     profile_2 = node_2.get_profile()
     d = profile_distance(profile_1, profile_2)
-    return round(-(3/4) * math.log(1 - (4/3) * d) , 3)
+    if (1 - (4 / 3) * d) < 0:
+        raise ValueError('Negative value: log corrected profile distance not possible.')
+    return round(-(3 / 4) * math.log(1 - (4 / 3) * d), 3)
 
 
 def branch_length(node_1, node_2, r):
@@ -109,47 +120,36 @@ def branch_length(node_1, node_2, r):
     :return: the branch length between node_1 and node_2
     :rtype: float
     '''
-    if (node_1.get_parent() != node_2):
+    if node_1.get_parent() != node_2:
         raise ValueError('nodes are not each other\'s parent')
-    
     if node_1.get_children():
-        
-        A = node_1.get_children()[0]
-        B = node_1.get_children()[1]
-        if node_2.get_children()[0] == node_1:
-            C = node_2.get_children()[1]
-        else:
-            C = node_2.get_children()[0]
-        dABr = (log_corrected_profile_distance(A,r) + log_corrected_profile_distance(A,C) + \
-            log_corrected_profile_distance(B,r) + log_corrected_profile_distance(B, C))/4 \
-            - (log_corrected_profile_distance(A, B) + log_corrected_profile_distance(r, C))/2
-
+        dABr = calculate_distance_for_branch_length(node_1, node_2, r)
         if node_2 == r:
             # directly return the distance to the root
-            return round(dABr,3)
+            return round(dABr, 3)
         else:
             # subtract the distance between the parent of the node and the root
             node_1 = node_1.get_parent()
             node_2 = node_2.get_parent()
-            A = node_1.get_children()[0]
-            B = node_1.get_children()[1]
-            if node_2.get_children()[0] == node_1:
-                C = node_2.get_children()[1]
-            else:
-                C = node_2.get_children()[0]
-            dABCr = (log_corrected_profile_distance(A,r) + log_corrected_profile_distance(A,C) + \
-                log_corrected_profile_distance(B,r) + log_corrected_profile_distance(B, C))/4 \
-                - (log_corrected_profile_distance(A, B) + log_corrected_profile_distance(r, C))/2
+            dABCr = calculate_distance_for_branch_length(node_1, node_2, r)
             return round(dABr - dABCr, 3)
-
-
-    elif not node_1.get_children():
+    else:
         A = node_1
         if node_2.get_children()[0] == A:
             B = node_2.get_children()[1]
         else:
             B = node_2.get_children()[0]
-        return round((log_corrected_profile_distance(A, r)+log_corrected_profile_distance(A, B) - \
-                log_corrected_profile_distance(B, r)) / 2, 3)
-    
+        return round((log_corrected_profile_distance(A, r) + log_corrected_profile_distance(A, B) -
+                      log_corrected_profile_distance(B, r)) / 2, 3)
 
+
+def calculate_distance_for_branch_length(node_1, node_2, r):
+    A = node_1.get_children()[0]
+    B = node_1.get_children()[1]
+    if node_2.get_children()[0] == node_1:
+        C = node_2.get_children()[1]
+    else:
+        C = node_2.get_children()[0]
+    return (log_corrected_profile_distance(A, r) + log_corrected_profile_distance(A, C) +
+            log_corrected_profile_distance(B, r) + log_corrected_profile_distance(B, C)) / 4 \
+        - (log_corrected_profile_distance(A, B) + log_corrected_profile_distance(r, C)) / 2
