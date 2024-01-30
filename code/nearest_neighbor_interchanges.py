@@ -83,9 +83,9 @@ def nearest_neighbor_interchange(node_a, node_b, node_c, node_d):
     dist_1 = log_corrected_profile_distance(node_a, node_b) + log_corrected_profile_distance(node_c, node_d)
     dist_2 = log_corrected_profile_distance(node_a, node_c) + log_corrected_profile_distance(node_b, node_d)
     dist_3 = log_corrected_profile_distance(node_b, node_c) + log_corrected_profile_distance(node_a, node_d)
+    f_1 = node_a.get_parent()
+    f_2 = node_c.get_parent()
     if dist_1 < dist_2 and dist_1 < dist_3:
-        f_1 = node_a.get_parent()
-        f_2 = node_c.get_parent()
         # Question: How can the new profiles change?
         # Should we recompute lambda to do this?
         # How can we do this if we do not have any active nodes?
@@ -93,54 +93,33 @@ def nearest_neighbor_interchange(node_a, node_b, node_c, node_d):
         f_2.set_profile(create_combined_profile(node_c, f_1, nni_lambda(node_c, node_d, node_a, node_b)))
         return False
     if dist_2 < dist_3:
-        change_to_topology_2(node_a, node_b, node_c, node_d)
+        change_to_different_topology(node_a, node_c, node_b, node_d, f_1, f_2)
         return True
     else:
-        change_to_topology_3(node_a, node_b, node_c, node_d)
+        change_to_different_topology(node_b, node_c, node_a, node_d, f_1, f_2)
         return True
 
 
-def change_to_topology_2(node_a, node_b, node_c, node_d):
+def change_to_different_topology(node_a, node_b, node_c, node_d, f_1, f_2):
     """
-    Changes the topology of the tree to the topology of dist2.
-    :param node_a: the first node
+    Changes the topology of the tree to a topology where node a and b are children of f_1,
+     and node c is child of node f_2.
+    :param node_a: the node at the first position
     :type node_a: Node
-    :param node_b: the second node
+    :param node_b: the node at the second position
     :type node_b: Node
-    :param node_c: the third node
+    :param node_c: the node at the third position
     :type node_c: Node
-    :param node_d: the fourth node
-    :type node_d: Node
+    :param f_1: first parent node
+    :type f_1: Node
+    :param f_2: second parent node
+    :type f_2: Node
     """
-    f_1 = node_a.get_parent()
-    f_2 = node_c.get_parent()
-    f_1.set_children([node_a, node_c])
-    f_2.set_children([node_b, f_1])
-    node_c.set_parent(f_1)
-    node_b.set_parent(f_2)
+    f_1.set_children([node_a, node_b])
+    f_2.set_children([node_c, f_1])
+    node_b.set_parent(f_1)
+    node_c.set_parent(f_2)
     # Question: what lamda should we use here?
-    f_1.set_profile(create_combined_profile(node_a, node_c, nni_lambda(node_a, node_c, node_b, node_d)))
-    f_2.set_profile(create_combined_profile(node_b, f_1, nni_lambda(node_b, node_d, node_a, node_c)))
+    f_1.set_profile(create_combined_profile(node_a, node_b, nni_lambda(node_a, node_b, node_c, node_d)))
+    f_2.set_profile(create_combined_profile(node_c, f_1, nni_lambda(node_c, node_d, node_a, node_b)))
 
-
-def change_to_topology_3(node_a, node_b, node_c, node_d):
-    """
-    Changes the topology of the tree to the topology of dist3.
-    :param node_a: the first node
-    :type node_a: Node
-    :param node_b: the second node
-    :type node_b: Node
-    :param node_c: the third node
-    :type node_c: Node
-    :param node_d: the fourth node
-    :type node_d: Node
-    """
-    f_1 = node_a.get_parent()
-    f_2 = node_c.get_parent()
-    f_1.set_children([node_b, node_c])
-    f_2.set_children([node_a, f_1])
-    node_c.set_parent(f_1)
-    node_a.set_parent(f_2)
-    # Question: what lamda should we use here?
-    f_1.set_profile(create_combined_profile(node_b, node_c, nni_lambda(node_b, node_c, node_a, node_d)))
-    f_2.set_profile(create_combined_profile(node_a, f_1, nni_lambda(node_a, node_d, node_b, node_c)))
