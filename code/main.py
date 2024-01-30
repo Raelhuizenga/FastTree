@@ -6,7 +6,7 @@ from newick_format import newick_format
 from nearest_neighbor_interchanges import run_nearest_neighbor_interchanges
 
 
-def fast_tree(sequences_dict):
+def fast_tree(sequences_dict: dict):
     """
     Constructs a tree from the sequences in sequences_dict using the FastTree algorithm.
     :param sequences_dict: dictionary with as key the label name and as value the sequence
@@ -42,7 +42,7 @@ def fast_tree(sequences_dict):
     return newick_format(total_nodes[tree[0]], total_nodes[tree[0]])
 
 
-def parse_input(filename):
+def parse_input(filename: str):
     """
     Reads an aln file with aligned sequences and puts the sequences in a dictionary.
     :return: dictionary with as key the label name and as value the sequence

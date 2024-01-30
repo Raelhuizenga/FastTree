@@ -1,6 +1,8 @@
+from FastTree.code.node import Node
 from distance_calculations import branch_length
 
-def newick_format(node, root_node):
+
+def newick_format(node: Node, root_node: Node):
     """
     Formats the tree in Newick format.
     :param node: the node to start from
@@ -24,11 +26,11 @@ def newick_format(node, root_node):
     if branch_length_1_p < 0:
         branch_length_0_p -= branch_length_1_p
         branch_length_1_p = 0
-    output = "(" + newick_format(children[0], root_node) + ":" + str(round(branch_length_0_p, 3)) + "," + newick_format(children[1], root_node) + ":" + str(round(branch_length_1_p, 3)) + ")"
+    output = "(" + newick_format(children[0], root_node) + ":" + str(round(branch_length_0_p, 3)) + "," + newick_format(
+        children[1], root_node) + ":" + str(round(branch_length_1_p, 3)) + ")"
     # If node is root node, add ; to end of output
     if not node.get_parent():
         output += node.get_label() + ";"
     else:
         output += node.get_label()
     return output
-

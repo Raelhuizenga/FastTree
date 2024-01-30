@@ -4,7 +4,7 @@ from profile_creation import create_combined_profile
 from node import Node
 
 
-def run_nearest_neighbor_interchanges(n, root_node):
+def run_nearest_neighbor_interchanges(n: int, root_node: Node):
     """
     Runs the nearest neighbor interchanges algorithm on the tree.
     :param n: the number of sequences (= number of leaves)
@@ -28,7 +28,7 @@ def run_nearest_neighbor_interchanges(n, root_node):
             break
 
 
-def post_order_traversal(node, post_order_list):
+def post_order_traversal(node: Node, post_order_list: list):
     """
     Performs a post order traversal of the tree.
     :param node: the node to start the traversal from
@@ -48,7 +48,7 @@ def post_order_traversal(node, post_order_list):
     return post_order_list
 
 
-def get_nodes_to_possibly_rearrange(neighbor_node_1, neighbor_node_2):
+def get_nodes_to_possibly_rearrange(neighbor_node_1: Node, neighbor_node_2: Node):
     """
     Gets the nodes that can be rearranged.
     :param neighbor_node_1: the first neighbor node
@@ -67,14 +67,27 @@ def get_nodes_to_possibly_rearrange(neighbor_node_1, neighbor_node_2):
     return node_a, node_b, node_c, node_d
 
 
-def nni_lambda(node_a, node_b, node_c, node_d):
+def nni_lambda(node_a: Node, node_b: Node, node_c: Node, node_d: Node):
+    '''
+    Calculates the NNI (Nearest-Neighbor Interchange) lambda score for a tree rearrangement involving nodes A, B, C, and D.
+    :param node_a: Node A in the tree.
+    :type node_a: Node
+    :param node_b: Node B in the tree.
+    :type node_b: Node
+    :param node_c: Node C in the tree.
+    :type node_c: Node
+    :param node_d: Node D in the tree.
+    :type node_d: Node
+    :return: The NNI lambda score for the tree rearrangement involving nodes A, B, C, and D.
+    :rtype: float
+    '''
     return 1 / 2 + (log_corrected_profile_distance(node_b, node_c) + log_corrected_profile_distance(node_b,
                                                                                                     node_d) - log_corrected_profile_distance(
         node_a, node_c) - log_corrected_profile_distance(node_a, node_d)) / (
                 4 * log_corrected_profile_distance(node_a, node_b))
 
 
-def nearest_neighbor_interchange(node_a, node_b, node_c, node_d):
+def nearest_neighbor_interchange(node_a: Node, node_b: Node, node_c: Node, node_d: Node):
     """
     Calculates distances and performs a nearest neighbor interchange on the given nodes if needed.
     :param node_a: the first node
@@ -106,7 +119,7 @@ def nearest_neighbor_interchange(node_a, node_b, node_c, node_d):
         return True
 
 
-def change_to_different_topology(node_a, node_b, node_c, node_d, f_1, f_2):
+def change_to_different_topology(node_a: Node, node_b: Node, node_c: Node, node_d: Node, f_1: Node, f_2: Node):
     """
     Changes the topology of the tree to a topology where node a and b are children of f_1,
      and node c is child of node f_2.

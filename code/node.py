@@ -72,28 +72,28 @@ class Node:
     def set_age(self, age):
         self.age = age
 
-    def set_profile(self, profile):
+    def set_profile(self, profile: list):
         self.profile = profile
     
-    def set_up_distance(self, up_distance):
+    def set_up_distance(self, up_distance: float):
         self.up_distance = up_distance
     
-    def set_top_hits(self, top_hits):
+    def set_top_hits(self, top_hits: dict):
         self.top_hits = top_hits
 
-    def set_children(self, children):
+    def set_children(self, children: list):
         self.children = children
 
-    def set_active(self, active):
+    def set_active(self, active: bool):
         self.active = active
 
     def set_parent(self, parent):
         self.parent = parent
 
-    def set_variance_correction(self, variance_correction):
+    def set_variance_correction(self, variance_correction: float):
         self.variance_correction = variance_correction
 
-    def set_lambda(self, lambda_val):
+    def set_lambda(self, lambda_val: float):
         self.lambda_val = lambda_val
 
     def __eq__(self, other):

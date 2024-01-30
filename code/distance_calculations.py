@@ -1,8 +1,9 @@
+from FastTree.code.node import Node
 from get_active_nodes import get_active_nodes
 import math
 
 
-def neighbor_joining_criterion(node_i, node_j, all_nodes):
+def neighbor_joining_criterion(node_i: Node, node_j: Node, all_nodes: dict):
     """
     Calculates the neighbor joining criterion for node_i and node_j.
     :param node_i: the first node
@@ -21,7 +22,7 @@ def neighbor_joining_criterion(node_i, node_j, all_nodes):
 
 
 # preprint paper page 11
-def up_distance(node_i, node_j, lambda_val, active_nodes):
+def up_distance(node_i: Node, node_j: Node, lambda_val: float, active_nodes: dict):
     """
     Calculates the up distance between two profiles.
     :param node_i: the first nde
@@ -45,7 +46,7 @@ def up_distance(node_i, node_j, lambda_val, active_nodes):
 
 
 # preprint paper page 3
-def profile_distance(profile_i, profile_j):
+def profile_distance(profile_i: list, profile_j: list):
     """
     Calculates the profile distance between two profiles.
     :param profile_i: the first profile
@@ -67,7 +68,7 @@ def profile_distance(profile_i, profile_j):
     return profile_distance_value
 
 
-def average_out_distance(node, active_nodes):
+def average_out_distance(node: Node, active_nodes: dict):
     """
     Calculates the average out distance of node.
     :param node: the node to calculate the average out distance of
@@ -88,7 +89,7 @@ def average_out_distance(node, active_nodes):
     return dist / (len(active_nodes) - 2)
 
 
-def log_corrected_profile_distance(node_1, node_2):
+def log_corrected_profile_distance(node_1: Node, node_2: Node):
     """
     Calculates the log corrected profile distance between two nodes.
     :param node_1: the first node
@@ -108,7 +109,7 @@ def log_corrected_profile_distance(node_1, node_2):
     return round(-(3 / 4) * math.log(1 - (4 / 3) * d), 3)
 
 
-def branch_length(node_1, node_2, r):
+def branch_length(node_1: Node, node_2: Node, r: Node):
     '''
     Calculates the branch length between node_1 and node_2.
     :param node_1: the first node
@@ -143,7 +144,19 @@ def branch_length(node_1, node_2, r):
                       log_corrected_profile_distance(B, r)) / 2, 3)
 
 
-def calculate_distance_for_branch_length(node_1, node_2, r):
+def calculate_distance_for_branch_length(node_1: Node, node_2: Node, r: Node):
+    '''
+    Calculates the distance for the branch length between nodes `node_1` and `node_2` with respect to the root node `r`.
+    :param node_1: The first node in the branch.
+    :type node_1: Node
+    :param node_2: The second node in the branch.
+    :type node_2: Node
+    :param r: The root node of the tree.
+    :type r: Node
+    :return: The calculated distance for the branch length between nodes `node_1` and `node_2`
+    with respect to the root node `r`.
+    :rtype: float
+    '''
     A = node_1.get_children()[0]
     B = node_1.get_children()[1]
     if node_2.get_children()[0] == node_1:

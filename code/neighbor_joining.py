@@ -25,7 +25,7 @@ def best_hits(nodes):
     return best_hits_list[0:m]
 
 
-def get_best_hit(best_hit_list, all_nodes):
+def get_best_hit(best_hit_list: list, all_nodes: dict):
     """"
     Calculates the best hit from the best hits list by recomputing the neighbor joining criterion.
     :param best_hit_list: list with m tuples (startnode_label, endnode_label, distance)
@@ -44,7 +44,7 @@ def get_best_hit(best_hit_list, all_nodes):
     return best_join[0], best_join[1]
 
 
-def top_hits(total_nodes, n):
+def top_hits(total_nodes: dict, n: int):
     """
     Calculates the top hits for each node in total_nodes and updates this in each node.
     :param total_nodes: dictionary with as key the label name and as value the node
@@ -84,7 +84,7 @@ def top_hits(total_nodes, n):
             calculate_close_neighbors(remaining_sequence, top_hits_sequences, len(top_hits_sequences), total_nodes))
 
 
-def calculate_close_neighbors(seed, nodes, m, total_nodes):
+def calculate_close_neighbors(seed: Node, nodes: dict, m: int, total_nodes: dict):
     """
     Calculates the m closest neighbors of seed in nodes.
     :param seed: a node
@@ -93,6 +93,8 @@ def calculate_close_neighbors(seed, nodes, m, total_nodes):
     :type nodes: dict(str, Node)
     :param m: the number of neighbors to return
     :type m: int
+    :param total_nodes: all nodes
+    :type total_nodes: dict(str, Node)
     :return: the labels of the m closest neighbors of seed in nodes and their distance
     :rtype: dict(str, float)
     """
@@ -118,7 +120,7 @@ def calculate_close_neighbors(seed, nodes, m, total_nodes):
     return close_neighbors
 
 
-def remove_lineage_from_top_hits(node_1, top_hits_list_2):
+def remove_lineage_from_top_hits(node_1: Node, top_hits_list_2: dict):
     '''
     Removes the lineage of node_1 from the top hits list of node_2.
     :param node_1: the node to remove the lineage of
@@ -134,7 +136,7 @@ def remove_lineage_from_top_hits(node_1, top_hits_list_2):
         remove_lineage_from_top_hits(node_1.get_children()[1], top_hits_list_2)
 
 
-def merge_top_hits_list(node_1, node_2, m, merged_node, all_nodes):
+def merge_top_hits_list(node_1: Node, node_2: Node, m: int, merged_node: Node, all_nodes: dict):
     '''
     Merges the top hits list of node_1 and node_2 into the top hits list of merged_node.
     :param node_1: the first node to merge
@@ -183,7 +185,7 @@ def merge_top_hits_list(node_1, node_2, m, merged_node, all_nodes):
     return
 
 
-def update_top_hits(node_to_update, all_nodes):
+def update_top_hits(node_to_update: Node, all_nodes: dict):
     '''
     Updates the top hits list of node_to_update.
     :param node_to_update: the node to update the top hits list of
@@ -205,7 +207,7 @@ def update_top_hits(node_to_update, all_nodes):
         all_nodes[close_neighbor].set_top_hits(top_hits_list)
 
 
-def update_top_hits_combined_list(seed, old_top_hits, new_top_hits, all_nodes):
+def update_top_hits_combined_list(seed: Node, old_top_hits: dict, new_top_hits: dict, all_nodes: dict):
     '''
     Updates the top hits list of seed with the new_top_hits list.
     :param seed: the label of the seed node
@@ -231,7 +233,7 @@ def update_top_hits_combined_list(seed, old_top_hits, new_top_hits, all_nodes):
                 new_top_hits[node_to_add] = dis
 
 
-def create_join(best_hit, all_nodes, update_top_hits=True):
+def create_join(best_hit: tuple, all_nodes: dict, update_top_hits=True):
     '''
     Creates a join between the two nodes in best_hit.
     :param best_hit: the best hit to join
@@ -266,7 +268,7 @@ def create_join(best_hit, all_nodes, update_top_hits=True):
         merge_top_hits_list(node_1, node_2, m, joined_node, all_nodes)
 
 
-def calculate_variance_correction(node_1, node_2, lambda_val):
+def calculate_variance_correction(node_1: Node, node_2: Node, lambda_val: float):
     '''	
     Calculates the variance correction the join between node_1 and node_2.
     :param node_1: the first node to join
@@ -283,7 +285,7 @@ def calculate_variance_correction(node_1, node_2, lambda_val):
         node_1, node_2)
 
 
-def calculate_variance(node_1, node_2):
+def calculate_variance(node_1: Node, node_2: Node):
     '''
     Calculates the variance of the join between node_1 and node_2.
     :param node_1: the first node to join
@@ -297,7 +299,7 @@ def calculate_variance(node_1, node_2):
                             node_2.get_profile()) - node_1.get_variance_correction() - node_2.get_variance_correction()
 
 
-def calculate_weight_join(node_1, node_2, active_nodes):
+def calculate_weight_join(node_1: Node, node_2: Node, active_nodes: dict):
     '''
     Calculates the weight of node_1 in the join between node_1 and node_2.
     :param node_1: the first node to join
