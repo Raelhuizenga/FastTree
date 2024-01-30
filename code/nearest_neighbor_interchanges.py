@@ -64,6 +64,10 @@ def get_nodes_to_possibly_rearrange(neighbor_node_1, neighbor_node_2):
     return node_a, node_b, node_c, node_d
 
 
+def nni_lambda(node_a, node_b, node_c, node_d):
+    return 1/2 + (log_corrected_profile_distance(node_b, node_c) + log_corrected_profile_distance(node_b, node_d) - log_corrected_profile_distance(node_a, node_c) - log_corrected_profile_distance(node_a, node_d)) / (4*log_corrected_profile_distance(node_a, node_b))
+
+
 def nearest_neighbor_interchange(node_a, node_b, node_c, node_d):
     """
     Calculates distances and performs a nearest neighbor interchange on the given nodes if needed.
@@ -85,18 +89,18 @@ def nearest_neighbor_interchange(node_a, node_b, node_c, node_d):
         # Question: How can the new profiles change?
         # Should we recompute lambda to do this?
         # How can we do this if we do not have any active nodes?
-        f_1.set_profile(create_combined_profile(node_a, node_b, f_1.get_lambda()))
-        f_2.set_profile(create_combined_profile(node_c, f_1, f_2.get_lambda()))
+        f_1.set_profile(create_combined_profile(node_a, node_b, nni_lambda(node_a, node_b, node_c, node_d)))
+        f_2.set_profile(create_combined_profile(node_c, f_1, nni_lambda(node_c, node_d, node_a, node_b)))
         return False
     if dist_2 < dist_3:
-        change_to_different_topology(node_a, node_c, node_b, f_1, f_2)
+        change_to_different_topology(node_a, node_c, node_b, node_d, f_1, f_2)
         return True
     else:
-        change_to_different_topology(node_b, node_c, node_a, f_1, f_2)
+        change_to_different_topology(node_b, node_c, node_a, node_d, f_1, f_2)
         return True
 
 
-def change_to_different_topology(node_a, node_b, node_c, f_1, f_2):
+def change_to_different_topology(node_a, node_b, node_c, node_d, f_1, f_2):
     """
     Changes the topology of the tree to a topology where node a and b are children of f_1,
      and node c is child of node f_2.
@@ -116,5 +120,6 @@ def change_to_different_topology(node_a, node_b, node_c, f_1, f_2):
     node_b.set_parent(f_1)
     node_c.set_parent(f_2)
     # Question: what lamda should we use here?
-    f_1.set_profile(create_combined_profile(node_a, node_b, f_1.get_lambda()))
-    f_2.set_profile(create_combined_profile(node_c, f_1, f_2.get_lambda()))
+    f_1.set_profile(create_combined_profile(node_a, node_b, nni_lambda(node_a, node_b, node_c, node_d)))
+    f_2.set_profile(create_combined_profile(node_c, f_1, nni_lambda(node_c, node_d, node_a, node_b)))
+
