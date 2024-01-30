@@ -1,5 +1,11 @@
 # FastTree
-To run FastTree, you need to run the main.py file. To change the input file, you can change the variable 'filename' in the main function. The input file should be in the data folder. 
+To run FastTree, you need to run the main.py file.
+
+- Option 1: run the test-small file
+
+- Option 2: run the fasttree-input file
+
+After starting the code, you can type 1 or 2 to run either of the options.
 
 FastTree prints the Newick Format of the output tree. To view the tree you can copy paste this into a tree viewer, like: http://etetoolkit.org/treeview/. 
 
