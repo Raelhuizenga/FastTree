@@ -56,7 +56,7 @@ def parse_input(filename):
 
 
 if __name__ == '__main__':
-    input_option = input("For which file do you want to run fast tree? \n 1 : test small 2: fasttree input")
+    input_option = input("For which file do you want to run fast tree? \n1: test small 2: fasttree input \n")
     if input_option == '1':
         file = 'test-small'
     elif input_option == '2':

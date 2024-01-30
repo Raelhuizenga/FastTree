@@ -12,6 +12,7 @@ def form_profile(sequences):  # Should be O(nla), a = 4 (alphabet size)
     C = []
     G = []
     T = []
+    # At every position in the sequences, count the number of occurrences of each nucleotide and divide by number of sequences
     for i in range(l):
         A.append(0.0)
         C.append(0.0)
@@ -46,6 +47,7 @@ def create_combined_profile(node_1, node_2, lambda_val):
     profile_1 = node_1.get_profile()
     profile_2 = node_2.get_profile()
     new_profile = []
+    # For each position in the profile, calculate the new value by taking the weighted average of the values in the profiles of node_1 and node_2
     for i in range(len(profile_1)):
         row = []
         for j in range(len(profile_1[0])):
