@@ -15,11 +15,12 @@ def best_hits(nodes):
     """
     best_hits_list = []
     active_nodes = get_active_nodes(nodes)
+    # Get for every active node the best hit, and merge these into a best_hits list
     for label, node in active_nodes.items():
         best_hit_dist = min(list(node.get_top_hits().values()))
         best_hit_label = [key for key, dist in node.get_top_hits().items() if dist == best_hit_dist][0]
         best_hits_list.append((label, best_hit_label, best_hit_dist))
-    m = int(len(active_nodes)**0.5)
+    m = int(len(active_nodes) ** 0.5)
     best_hits_list = sorted(best_hits_list, key=lambda x: x[2])
     return best_hits_list[0:m]
 
@@ -60,21 +61,27 @@ def top_hits(total_nodes, n):
     seed_nodes = total_nodes.copy()
     m = int(np.sqrt(n))
     while len(seed_nodes) > m:
+        # Get a random node from the list and remove it
         single_seed_node = list(seed_nodes.keys())[np.random.randint(0, len(seed_nodes))]
         seed_node_value = seed_nodes.pop(single_seed_node)
+        # Set the close neighbors as tophits from the seed node
         close_neighbors = calculate_close_neighbors(seed_node_value, seed_nodes, m, total_nodes)
         total_nodes[seed_node_value.get_label()].set_top_hits(close_neighbors)
+        # Also set the tophits for all close neighbors of the seednode
         top_hits_helper = calculate_close_neighbors(seed_node_value, seed_nodes, 2 * m, total_nodes)
         for neighbor in list(close_neighbors.keys()):
             top_hits_helper_neighbor = top_hits_helper.copy()
             top_hits_helper_neighbor.pop(neighbor)
             neighbor_value = seed_nodes[neighbor]
-            total_nodes[neighbor].set_top_hits(calculate_close_neighbors(neighbor_value, top_hits_helper_neighbor, m, total_nodes))
+            total_nodes[neighbor].set_top_hits(
+                calculate_close_neighbors(neighbor_value, top_hits_helper_neighbor, m, total_nodes))
             seed_nodes.pop(neighbor)
+    # Set the tophits list for the remaining m seed nodes.
     for label, remaining_sequence in seed_nodes.items():
         top_hits_sequences = seed_nodes.copy()
         top_hits_sequences.pop(label)
-        total_nodes[label].set_top_hits(calculate_close_neighbors(remaining_sequence, top_hits_sequences, len(top_hits_sequences), total_nodes))
+        total_nodes[label].set_top_hits(
+            calculate_close_neighbors(remaining_sequence, top_hits_sequences, len(top_hits_sequences), total_nodes))
 
 
 def calculate_close_neighbors(seed, nodes, m, total_nodes):
@@ -89,9 +96,11 @@ def calculate_close_neighbors(seed, nodes, m, total_nodes):
     :return: the labels of the m closest neighbors of seed in nodes and their distance
     :rtype: dict(str, float)
     """
+    # Remove the seed node from the list of possible close neighbors
     nodes_without_seed = nodes.copy()
     if seed.get_label() in nodes_without_seed:
         del nodes_without_seed[seed.get_label()]
+    # If the number of nodes < m, we still want to get the close neighbors
     if len(nodes_without_seed) < m:
         m = len(nodes_without_seed)
     distances = []
@@ -99,8 +108,10 @@ def calculate_close_neighbors(seed, nodes, m, total_nodes):
         distances.append(neighbor_joining_criterion(seed, total_nodes[label], total_nodes))
     sorted_distances = distances.copy()
     sorted_distances.sort()
+    # The m distance is the max distance that a node should have to be in the close neighbor list of the seed node.
     m_distance = sorted_distances[m - 1]
     close_neighbors = {}
+    # Filter the nodes on the m distance to get the close neighbors
     for i, label in enumerate(list(nodes_without_seed.keys())):
         if distances[i] <= m_distance:
             close_neighbors[label] = distances[i]
@@ -138,27 +149,33 @@ def merge_top_hits_list(node_1, node_2, m, merged_node, all_nodes):
     :type all_nodes: dict(str, Node)
     :return: None
     '''
+    # The top_hits_list_1 will be the new merged list.
     top_hits_list_1 = node_1.get_top_hits().copy()
     top_hits_list_2 = node_2.get_top_hits().copy()
     remove_lineage_from_top_hits(node_1, top_hits_list_2)
     remove_lineage_from_top_hits(node_2, top_hits_list_1)
     for key, value in top_hits_list_1.items():
         if key in top_hits_list_2:
+            # If both lists contain the same node, we use the smallest distance from both lists.
             if top_hits_list_2[key] < value:
                 top_hits_list_1[key] = top_hits_list_2[key]
             del top_hits_list_2[key]
     top_hits_list_1.update(top_hits_list_2)
     if len(top_hits_list_1) > 0.8 * m and len(top_hits_list_1) > 1 and merged_node.get_age() <= 1 + np.log2(m):
+        # If the size of the list is smaller than m, we set the full list as tophits
         if len(top_hits_list_1) <= m:
             merged_node.set_top_hits(top_hits_list_1)
             return
+        # If the size of the list is larger than m, we sort the list on distance,
+        # and take the m nodes with the smallest distance.
         distances = list(top_hits_list_1.values())
         distances = sorted(distances)
-        m_distance = distances[m-1]
+        m_distance = distances[m - 1]
         top_hits_list_1_copy = top_hits_list_1.copy()
         for key, value in top_hits_list_1_copy.items():
             if value > m_distance:
                 del top_hits_list_1[key]
+    # If the tophits list has shrunk below, 0.8*m or the age of the node is above 1 + np.log2(m), we update the tophits.
     else:
         update_top_hits(merged_node, all_nodes)
         return
@@ -176,13 +193,15 @@ def update_top_hits(node_to_update, all_nodes):
     :return: None
     '''
     active_nodes = get_active_nodes(all_nodes)
-    m = int(len(active_nodes)**(1/2))
+    m = int(len(active_nodes) ** (1 / 2))
     new_top_hits = calculate_close_neighbors(node_to_update, active_nodes, m, all_nodes)
     node_to_update.set_top_hits(new_top_hits)
-    top_hits_helper = calculate_close_neighbors(node_to_update, active_nodes, 2*m, all_nodes)
+    top_hits_helper = calculate_close_neighbors(node_to_update, active_nodes, 2 * m, all_nodes)
+    # Also update the tophits list of all close neighbors.
     for close_neighbor, distance in new_top_hits.items():
         top_hits_list = calculate_close_neighbors(all_nodes[close_neighbor], top_hits_helper, m, all_nodes)
-        update_top_hits_combined_list(close_neighbor, all_nodes[close_neighbor].get_top_hits(), top_hits_list, all_nodes)
+        update_top_hits_combined_list(close_neighbor, all_nodes[close_neighbor].get_top_hits(), top_hits_list,
+                                      all_nodes)
         all_nodes[close_neighbor].set_top_hits(top_hits_list)
 
 
@@ -205,6 +224,7 @@ def update_top_hits_combined_list(seed, old_top_hits, new_top_hits, all_nodes):
             node_to_add = give_active_node(node_to_add, all_nodes)
         if node_to_add not in list(new_top_hits.keys()):
             dis = neighbor_joining_criterion(all_nodes[seed], all_nodes[node_to_add], all_nodes)
+            # Add nodes that have a smaller distance to the seed node to the new_top_hits
             if dis < max(list(new_top_hits.values())):
                 key_to_replace = max(new_top_hits, key=new_top_hits.get)
                 del new_top_hits[key_to_replace]
@@ -224,15 +244,18 @@ def create_join(best_hit, all_nodes, update_top_hits=True):
     '''
     node_1 = all_nodes[best_hit[0]]
     node_2 = all_nodes[best_hit[1]]
+    # Set the age to the maximum age of node 1 and 2 plus 1
     age = max(node_1.get_age(), node_2.get_age()) + 1
-
+    # Create a new unique label by combining the old labels
     new_label = node_1.get_label() + node_2.get_label()
     active_nodes = get_active_nodes(all_nodes)
     lambda_val = calculate_weight_join(node_1, node_2, active_nodes)
     new_profile = create_combined_profile(node_1, node_2, lambda_val)
     variance_correction = calculate_variance_correction(node_1, node_2, lambda_val)
     updistance = up_distance(node_1, node_2, lambda_val, active_nodes)
-    joined_node = Node(age, new_profile, {}, updistance, new_label, [node_1, node_2], True, None, variance_correction, lambda_val)
+    joined_node = Node(age, new_profile, {}, updistance, new_label, [node_1, node_2], True, None, variance_correction,
+                       lambda_val)
+    # Add the newly created joined node to all nodes. And make the old nodes inactive
     all_nodes[new_label] = joined_node
     node_1.set_active(False)
     node_2.set_active(False)
@@ -255,7 +278,9 @@ def calculate_variance_correction(node_1, node_2, lambda_val):
     :return: the variance correction of the join between node_1 and node_2
     :rtype: float
     '''
-    return lambda_val * node_1.get_variance_correction() + (1 - lambda_val)*node_2.get_variance_correction() + lambda_val*(1-lambda_val)*calculate_variance(node_1, node_2)
+    return lambda_val * node_1.get_variance_correction() + (
+            1 - lambda_val) * node_2.get_variance_correction() + lambda_val * (1 - lambda_val) * calculate_variance(
+        node_1, node_2)
 
 
 def calculate_variance(node_1, node_2):
@@ -268,7 +293,8 @@ def calculate_variance(node_1, node_2):
     :return: the variance of the join between node_1 and node_2
     :rtype: float
     '''
-    return profile_distance(node_1.get_profile(), node_2.get_profile()) - node_1.get_variance_correction() - node_2.get_variance_correction()
+    return profile_distance(node_1.get_profile(),
+                            node_2.get_profile()) - node_1.get_variance_correction() - node_2.get_variance_correction()
 
 
 def calculate_weight_join(node_1, node_2, active_nodes):
@@ -284,20 +310,18 @@ def calculate_weight_join(node_1, node_2, active_nodes):
     :rtype: float
     '''
     n = len(active_nodes)
-    # Question: how should we calculate lambda, if we only have two active nodes left?
-    # Is it correct that we than return 1/2?
-    if (n == 2):
-        return 1/2
+    # At the final join, the weight of the join, we decided that the weight of the join is 1/2.
+    if n == 2:
+        return 1 / 2
     sum_profile_distance_1 = 0
     sum_profile_distance_2 = 0
     for node in list(active_nodes.values()):
         if node == node_1 or node == node_2:
             continue
+        # Sum up the distances to all nodes, except the nodes itself.
         sum_profile_distance_1 += profile_distance(node.get_profile(), node_1.get_profile())
         sum_profile_distance_2 += profile_distance(node.get_profile(), node_2.get_profile())
-    numerator = (n-2)*(node_1.get_variance_correction() - node_2.get_variance_correction()) + sum_profile_distance_2 - sum_profile_distance_1
-    denominator = 2*(n-2)*calculate_variance(node_1, node_2)
-    return 1/2 + numerator/denominator
-
-
-
+    numerator = (n - 2) * (
+            node_1.get_variance_correction() - node_2.get_variance_correction()) + sum_profile_distance_2 - sum_profile_distance_1
+    denominator = 2 * (n - 2) * calculate_variance(node_1, node_2)
+    return 1 / 2 + numerator / denominator

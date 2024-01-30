@@ -110,6 +110,8 @@ def change_to_different_topology(node_a, node_b, node_c, node_d, f_1, f_2):
     :type node_b: Node
     :param node_c: the node at the third position
     :type node_c: Node
+    :param node_d: the node at the fourth position
+    :type node_d: Node
     :param f_1: first parent node
     :type f_1: Node
     :param f_2: second parent node
@@ -119,7 +121,6 @@ def change_to_different_topology(node_a, node_b, node_c, node_d, f_1, f_2):
     f_2.set_children([node_c, f_1])
     node_b.set_parent(f_1)
     node_c.set_parent(f_2)
-    # Question: what lamda should we use here?
     f_1.set_profile(create_combined_profile(node_a, node_b, nni_lambda(node_a, node_b, node_c, node_d)))
     f_2.set_profile(create_combined_profile(node_c, f_1, nni_lambda(node_c, node_d, node_a, node_b)))
 
