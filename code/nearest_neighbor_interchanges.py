@@ -14,6 +14,8 @@ def run_nearest_neighbor_interchanges(n, root_node):
     """
     max_iter = round(math.log(n)) + 1
     for i in range(max_iter):
+        # Make a new post order list every time,
+        # because the order could have been changed by an interchange in the previous step.
         post_order_list = post_order_traversal(root_node, [])
         list_is_changed = False
         for node_f1, node_f2 in post_order_list:
@@ -21,6 +23,7 @@ def run_nearest_neighbor_interchanges(n, root_node):
             if nearest_neighbor_interchange(node_a, node_b, node_c, node_d):
                 list_is_changed = True
                 break
+        # If the list was not changed, we can stop the nearest neighbor interchanges.
         if not list_is_changed:
             break
 
@@ -65,7 +68,10 @@ def get_nodes_to_possibly_rearrange(neighbor_node_1, neighbor_node_2):
 
 
 def nni_lambda(node_a, node_b, node_c, node_d):
-    return 1/2 + (log_corrected_profile_distance(node_b, node_c) + log_corrected_profile_distance(node_b, node_d) - log_corrected_profile_distance(node_a, node_c) - log_corrected_profile_distance(node_a, node_d)) / (4*log_corrected_profile_distance(node_a, node_b))
+    return 1 / 2 + (log_corrected_profile_distance(node_b, node_c) + log_corrected_profile_distance(node_b,
+                                                                                                    node_d) - log_corrected_profile_distance(
+        node_a, node_c) - log_corrected_profile_distance(node_a, node_d)) / (
+                4 * log_corrected_profile_distance(node_a, node_b))
 
 
 def nearest_neighbor_interchange(node_a, node_b, node_c, node_d):
@@ -86,16 +92,16 @@ def nearest_neighbor_interchange(node_a, node_b, node_c, node_d):
     f_1 = node_a.get_parent()
     f_2 = node_c.get_parent()
     if dist_1 < dist_2 and dist_1 < dist_3:
-        # Question: How can the new profiles change?
-        # Should we recompute lambda to do this?
-        # How can we do this if we do not have any active nodes?
+        # The topology stays the same, but the combined profile could be different because we calculate a new lambda.
         f_1.set_profile(create_combined_profile(node_a, node_b, nni_lambda(node_a, node_b, node_c, node_d)))
         f_2.set_profile(create_combined_profile(node_c, f_1, nni_lambda(node_c, node_d, node_a, node_b)))
         return False
     if dist_2 < dist_3:
+        # Switch node b and c
         change_to_different_topology(node_a, node_c, node_b, node_d, f_1, f_2)
         return True
     else:
+        # Switch node a and c
         change_to_different_topology(node_b, node_c, node_a, node_d, f_1, f_2)
         return True
 
@@ -123,4 +129,3 @@ def change_to_different_topology(node_a, node_b, node_c, node_d, f_1, f_2):
     node_c.set_parent(f_2)
     f_1.set_profile(create_combined_profile(node_a, node_b, nni_lambda(node_a, node_b, node_c, node_d)))
     f_2.set_profile(create_combined_profile(node_c, f_1, nni_lambda(node_c, node_d, node_a, node_b)))
-
