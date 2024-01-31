@@ -11,3 +11,8 @@ FastTree prints the Newick Format of the output tree. To view the tree you can c
 
 The algorithm in its current form only works for alligned sequence data without gaps. 
 The algorithm is based on the paper from Morgan N. Price et all. (https://academic.oup.com/mbe/article/26/7/1641/1128976)
+
+Made by:
+Marit Verheij (4791517)
+Minouk Noordsij (4788338)
+Rael Huizenga (4866886)
